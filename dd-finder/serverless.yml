@@ -1,0 +1,17 @@
+org: landonmccleary
+app: dd-finder
+console: true
+service: dd-finder
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
