@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Group Finder</title>
+    <!-- <script src="https://unpkg.com/vue@next"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+  <div id="app">
+  <!-- <Banner/> -->
+  <hr>
+  <h2>User Name</h2>
+  <h4>{{user[0].user_name}}</h4>
+  <h2>Email</h2>
+  <h4>{{user[0].email}}</h4>
+  <h2>Groups</h2>
+  <ul>
+    <!-- <li v-for="group in user" v-text="group.group_name"></li> -->
+      <a :href="'/dev/group-page?groupId='+ group.group_id" v-for="group in user"><li>{{group.group_name}}</li></a>
+    </ul>
+  <h2>Characters</h2>
+  <ul>
+  <!-- <li v-for="character in characters" v-text="character.name"></li> -->
+  <a :href="'/dev/character-page?characterId='+ character.char_id" v-for="character in user"><li>{{character.char_name}}</li></a>
+  </ul>
+  </div>
+</body>
+</html>
+
+<script type="module">
+    // import Banner from './components/Banner.vue';
+    new Vue({
+        el: "#app",
+        data() {
+          return {
+            characters: [],
+            userId: location.href.split('?')[1].split('&')[0].split('=')[1],
+            groups: [],
+            // groupId: location.href.split('?')[1].split('&')[1].split('=')[1], 
+            user: [],
+            userInfo: ''
+            // userId: location.href.split('?')[1].split('&')[2].split('=')[1]
+          }
+        },
+        mounted: function() {
+          // this.getChars();
+          this.getUser();
+          // this.getGroups();
+        },
+        methods: {
+            joinGroup() {
+                console.log('join group');
+            },
+            createChar() {
+                console.log('create char');
+            },
+            getUser() {
+             axios.get(`/dev/user/${this.userId}`)
+                .then(response => (this.user = response.data, this.userInfo = response.data[0], console.log(response)),
+                (error) => {
+                    console.log(error);
+                }); 
+            },
+            // getChars() {
+            //  axios.get(`/dev/character/${this.charId}`)
+            //     .then(response => (this.characters = response.data, console.log(response.data[0])),
+            //     (error) => {
+            //         console.log(error);
+            //     }); 
+            // },
+            // getGroups() {
+            //   axios.get(`/dev/groups/${this.groupId}`)
+            //   .then(response => (this.groups = response.data, console.log(response.data)),
+            //   (error) => {
+            //     console.log(error);
+            //   });
+            // }
+        }
+    })
+</script>

@@ -1,0 +1,127 @@
+org: landonmccleary
+app: dd-finder
+console: true
+service: dd-finder
+configValidationMode: warn
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+  stage: dev
+  environment:
+    CHAR_TABLE: ${self:custom.charactersTable}
+    USER_TABLE: ${self:custom.usersTable}
+    GROUP_TABLE: ${self:custom.groupsTable}
+    ANNC_TABLE: ${self:custom.announcementsTable}
+    COMM_TABLE: ${self:custom.commentsTable}
+
+custom:
+  usersTable: users
+  charactersTable: characters
+  groupsTable: groups
+  announcementsTable: announcements
+  commentsTable: comments
+  region: us-east-1
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-aws-static-file-handler
+  - serverless-offline
+  - serverless-express
+
+functions:
+  # getChar:
+  #   handler: api.getChar
+  #   name: getChar
+  #   events:
+  #     - http: 
+  #         path: character/{id}
+  #         method: GET
+  # getUser:
+  #   handler: api.getUser
+  #   name: getUser
+  #   events:
+  #     - http:
+  #         path: user/{id}
+  #         method: GET
+  # getGroups:
+  #   handler: api.getGroups
+  #   name: getGroups
+  #   events:
+  #     - http:
+  #         path: groups/{id}
+  #         method: GET
+  # getGroupChars:
+  #   handler: api.getGroupChars
+  #   name: getGroupChars
+  #   events:
+  #     - http:
+  #         path: group/{id}/chars
+  #         method: GET
+  # getGroupPosts:
+  #     handler: api.getGroupPosts
+  #     name: getGroupPosts
+  #     events:
+  #       - http:
+  #           path: group/{id}/posts
+  #           method: GET
+  # getPost:
+  #     handler: api.getPost
+  #     name: getPost
+  #     events:
+  #       - http:
+  #           path: post/{id}
+  #           method: GET
+  # getComments:
+  #     handler: api.getComments
+  #     name: getComments
+  #     events:
+  #       - http:
+  #           path: comments/{id}
+  #           method: GET
+  # writeComments:
+  #     handler: api.writeComments
+  #     name: writeComments
+  #     events:
+  #       - http:
+  #           path: /comments
+  #           method: ANY
+  # like:
+  #     handler: api.likes
+  #     name: likes
+  #     events:
+  #       - http:
+  #           path: /likes
+  #           method: ANY 
+  # user:
+  #   handler: user.html
+  #   events:
+  #     - http:
+  #         path: /user-page
+  #         method: get
+  # group:
+  #   handler: group.html
+  #   events:
+  #     - http:
+  #         path: /group-page
+  #         method: get
+  # character:
+  #   handler: character.html
+  #   events:
+  #     - http:
+  #         path: /character-page
+  #         method: get
+  # posts:
+  #   handler: posts.html
+  #   events:
+  #     - http:
+  #         path: /posts-page
+  #         method: get
+  app:
+    handler: lambda.handler
+    events:
+      - http: 
+          method: ANY
+          path: /{proxy*} 

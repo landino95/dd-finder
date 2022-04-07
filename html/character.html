@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h2>User</h2>
+        <a :href="'/dev/user-page?userId='+ character.user_id">{{character.user_name}}</a>
+        <h2>Group</h2>
+        <a :href="'/dev/group-page?groupId='+ character.group_id">{{character.group_name}}</a>
+        <h2>Character</h2>
+        <p>{{character.char_name}}</p>
+        <h2>Character Stats</h2>
+        <span>Race</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.race}}</p>
+        <span>Class</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.class}}</p>
+        <span>Strength</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.strength}}</p>
+        <span>Dexterity</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.dexterity}}</p>
+        <span>Constitution</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.constitution}}</p>
+        <span>Intelligence</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.intelligence}}</p>
+        <span>Wisdom</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.wisdom}}</p>
+        <span>Charisma</span><p style="padding: 10px; border: 2px solid red; width: fit-content;">{{character.charisma}}</p>
+    </div>
+</body>
+</html>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                charId: location.href.split('?')[1].split('&')[0].split('=')[1],
+                character: '',
+            }
+        },
+        mounted: function() {
+            this.getChar();
+        },
+        methods: {
+            getChar() {
+                axios.get(`/dev/character/${this.charId}`)
+                .then(response => (this.character = response.data[0], console.log(response.data)),
+                (error) => {
+                    console.error(error);
+                }); 
+            },
+        }
+    })
+</script>
