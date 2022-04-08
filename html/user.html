@@ -15,9 +15,9 @@
   <!-- <Banner/> -->
   <hr>
   <h2>User Name</h2>
-  <h4>{{user[0].user_name}}</h4>
+  <h4>{{userInfo.user_name}}</h4>
   <h2>Email</h2>
-  <h4>{{user[0].email}}</h4>
+  <h4>{{userInfo.email}}</h4>
   <h2>Groups</h2>
   <ul>
     <!-- <li v-for="group in user" v-text="group.group_name"></li> -->
@@ -41,16 +41,12 @@
             characters: [],
             userId: location.href.split('?')[1].split('&')[0].split('=')[1],
             groups: [],
-            // groupId: location.href.split('?')[1].split('&')[1].split('=')[1], 
             user: [],
             userInfo: ''
-            // userId: location.href.split('?')[1].split('&')[2].split('=')[1]
           }
         },
         mounted: function() {
-          // this.getChars();
           this.getUser();
-          // this.getGroups();
         },
         methods: {
             joinGroup() {
@@ -66,20 +62,6 @@
                     console.log(error);
                 }); 
             },
-            // getChars() {
-            //  axios.get(`/dev/character/${this.charId}`)
-            //     .then(response => (this.characters = response.data, console.log(response.data[0])),
-            //     (error) => {
-            //         console.log(error);
-            //     }); 
-            // },
-            // getGroups() {
-            //   axios.get(`/dev/groups/${this.groupId}`)
-            //   .then(response => (this.groups = response.data, console.log(response.data)),
-            //   (error) => {
-            //     console.log(error);
-            //   });
-            // }
         }
     })
 </script>

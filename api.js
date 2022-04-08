@@ -45,7 +45,7 @@ const getGroups = function (event, context, callback) {
     const id = event.pathParameters.id;
     const sql = `SELECT player_groups.group_name, player_groups.description, player_groups.genre, player_groups.level, player_groups.dm, player_groups.play_type, player_groups.style, player_groups.created_on, characters.char_name, characters.char_id
                 FROM player_groups
-                INNER JOIN characters ON player_groups.group_id=characters.group_id where player_groups.group_id= ${id};`;
+                INNER JOIN characters ON player_groups.group_id=characters.group_id where player_groups.group_id=${id};`;
     try {
         dbQuery.dbQuery(sql, callback);
     } catch (error) {
@@ -173,12 +173,24 @@ const likes = function(event, context, callback) {
         }); 
     }
 }
-
-const test = function(req, res) {
+const getAllGroups = function(event, context, callback) {
+    context.callbackWaitsForEmptyEventLoop = false
+    const response = { statusCode: 200 };
+    const data = JSON.parse(event.body)
+    const sql = `SELECT player_groups.group_id, player_groups.description, player_groups.group_name, player_groups.genre, player_groups.level, player_groups.play_type, player_groups.style, users.user_name 
+                FROM player_groups
+                INNER JOIN users 
+                ON users.user_id = player_groups.dm;`;
     try {
-        console.log(req)
+        dbQuery.dbQuery(sql, callback);
     } catch (error) {
-       console.log(error) 
+       console.error(error);
+        response.statusCode = 500;
+        response.body = JSON.stringify({
+            message: 'Query Failed',
+            errorMsg: error.message,
+            errorStack: error.stack
+        }); 
     }
 }
 
@@ -192,5 +204,5 @@ module.exports = {
    getComments,
    writeComments,
    likes,
-   test
+   getAllGroups
 }
