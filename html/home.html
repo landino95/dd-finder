@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <b-navbar toggleable="lg" type="dark" variant="danger">
+            <b-navbar-brand href="#">D&D Group Finder</b-navbar-brand>
+
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+            <b-collapse id="nav-collapse" is-nav>
+                <b-navbar-nav>
+                    <b-nav-item href="/dev/search">Groups</b-nav-item>
+                    <b-nav-item href="#">Rules</b-nav-item>
+                </b-navbar-nav>
+
+            <!-- Right aligned nav items -->
+                <b-navbar-nav class="ml-auto">
+                    <b-nav-item-dropdown right>
+                        <!-- Using 'button-content' slot -->
+                        <template #button-content>
+                            <em>User</em>
+                        </template>
+                            <b-dropdown-item href="#">Profile</b-dropdown-item>
+                            <b-dropdown-item href="#">Logout</b-dropdown-item>
+                    </b-nav-item-dropdown>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
+        <h2 class="mt-5 mx-auto" style="width: 80%;">The Best Way To Find A Dungeons And Dragons Group</h2>
+       <div class="mt-5 mx-auto" style="width: 50%;">
+            <b-button class="mt-3" variant="outline-danger" href="/dev/create-group">Create A Group!</b-button>
+            <b-button class="mt-3" variant="outline-danger" href="/dev/create-char">Create A Character!</b-button>
+        </div> 
+    </div>
+</body>
+</html>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+          return {
+          }
+        },
+        mounted: function() {
+        },
+        methods: {
+        }
+    });
+</script>
+

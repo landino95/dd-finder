@@ -47,7 +47,7 @@
         },
         methods: {
             getGroups() {
-                axios.get(`/dev/all-groups`)
+                axios.get(`/dev/groups`)
                 .then(response => (this.groups = response.data, console.log(response.data)),
                 (error) => {
                     console.error(error);

@@ -25,12 +25,10 @@
            <option value="likes">Likes</option>
         </select>
         <div v-for="(comment, index) in comments">
-            <b><p>{{comment.char_name}}</p></b>
+            <b><p>{{comment.user_name}}</p></b>
             <p>{{comment.text}}</p>
             <span>{{comment.likes}} Likes</span>
             <button v-on:click="addLike(comment.likes, comment.comment_id)">Like</button>
-            <button v-on:click="reply[index]=true">Reply</button>
-            <input v-if="reply[index]" v-model="reply">
         </div>
    </div> 
 </body>
@@ -46,7 +44,6 @@
             comments: [],
             newComment: '',
             likes: '',
-            reply: [] 
           }
         },
         mounted: function() {

@@ -12,13 +12,13 @@
     <hr>
     <div id="app">
         <h1>{{groupInfo.group_name}}</h1>
-        <span>Group created on {{groupInfo.created_on}}</span>
+        <!-- <span>Group created on {{groupInfo.created_on}}</span> -->
         <p>Tags: {{groupInfo.style}} {{groupInfo.play_type}} {{groupInfo.genre}}</p>
         <h3>Characters</h3>
         <hr>
         <ul>
             <!-- <li v-for="character in characters" v-text="character.name"></li> -->
-            <a :href="'/dev/character-page?characterId='+ character.char_id" v-for="(character, index) in group"><li>{{group[index].char_name}}</li></a>
+            <a :href="'/dev/character-page?characterId='+ character.char_id" v-for="(character, index) in characters"><li>{{group[index].char_name}}</li></a>
         </ul>
         <hr>
         <h4>Group Posts</h4>
@@ -44,25 +44,31 @@
         mounted: function() {
         //   this.getGroupChars();
           this.getGroup();
-          this.getPosts();
+        //   this.getPosts();
         },
         methods: {
             joinGroup() {
                 console.log(this.groupId);
             },
             getGroup() {
-             axios.get(`/dev/groups/${this.groupId}`)
+                console.log(this.groupId)
+                axios.get(`/dev/groups/${this.groupId}`)
                 .then(response => (this.group = response.data, this.groupInfo = response.data[0], console.log(response.data)),
                 (error) => {
                     console.error(error);
                 }); 
-            },
-            getPosts() {
-                axios.get(`/dev/group/${this.groupId}/posts`)
-                .then(response => (this.posts = response.data, console.log(response)),
+                axios.get(`/dev/groupCharacters/${this.groupId}`)
+                .then(response => (this.characters = response.data),
                 (error) => {
                     console.error(error);
                 });
+                // axios.get(`/dev/groups/${this.groupId}/posts`)
+                // .then(response => (this.posts = response.data, console.log(response)),
+                // (error) => {
+                //     console.error(error);
+                // });
+            },
+            getPosts() {
             }
         }
     })

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Group</title>
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+</head>
+<h1>Create Character</h1>
+<body>
+    <div id="app">
+    <b-form @submit="createGroup">
+      <b-form-group
+        id="input-group-1"
+        label="Character Name:"
+        label-for="input-1"
+      >
+        <b-form-input
+          id="input-1"
+          v-model="form.charName"
+          placeholder="Enter name"
+          required
+        ></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-2" label="Class:" label-for="input-2">
+        <b-form-select
+          id="input-2"
+          v-model="form.charClass"
+          :options="charClass"
+          required
+        ></b-form-select>
+      </b-form-group>
+
+      <b-form-group id="input-group-3" label="Race:" label-for="input-3">
+        <b-form-select
+          id="input-3"
+          v-model="form.race"
+          :options="race"
+          required
+        ></b-form-select>
+      </b-form-group>
+
+    <b-form-group
+        id="input-group-4"
+        label="Strength:"
+        label-for="input-4"
+      >
+        <b-form-input
+          id="input-4"
+          v-model="form.strength"
+          placeholder="Select Strength"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.strength }}</span>
+      </b-form-group>
+    <b-form-group
+        id="input-group-5"
+        label="Dexterity:"
+        label-for="input-5"
+      >
+        <b-form-input
+          id="input-4"
+          v-model="form.dexterity"
+          placeholder="Select Dexterity"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.dexterity }}</span>
+      </b-form-group>
+    <b-form-group
+        id="input-group-6"
+        label="Constitution:"
+        label-for="input-6"
+      >
+        <b-form-input
+          id="input-6"
+          v-model="form.constitution"
+          placeholder="Select Constitution"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.constitution }}</span>
+      </b-form-group>
+    <b-form-group
+        id="input-group-7"
+        label="Intelligence:"
+        label-for="input-7"
+      >
+        <b-form-input
+          id="input-7"
+          v-model="form.intelligence"
+          placeholder="Select Intelligence"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.intelligence }}</span>
+      </b-form-group>
+      <b-form-group
+        id="input-group-8"
+        label="Wisdom:"
+        label-for="input-8"
+      >
+        <b-form-input
+          id="input-8"
+          v-model="form.wisdom"
+          placeholder="Select Wisdom"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.wisdom }}</span>
+      </b-form-group>
+    <b-form-group
+        id="input-group-9"
+        label="Charisma:"
+        label-for="input-9"
+      >
+        <b-form-input
+          id="input-9"
+          v-model="form.charisma"
+          placeholder="Select Charisma"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.charisma }}</span>
+      </b-form-group>
+
+      <b-button type="submit" variant="primary">Submit</b-button>
+    </b-form>
+    <!-- <b-card class="mt-3" header="Form Data Result">
+      <pre class="m-0">{{ form }}</pre>
+    </b-card> -->
+    </div>
+</body>
+</html>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+          return {
+              form : {
+              charName: '',
+              race: null,
+              charClass: null,
+              strength: '',
+              dm: 1,
+              dexterity: '',
+              constitution: '',
+              intelligence: '',
+              wisdom: '',
+              charisma: ''
+            },
+            race: [{ text: 'Select Race', value: null }, 'Orc', 'Elf', 'Human', 'Breton'],
+            charClass: [{ text: 'Select Class', value: null }, 'Mage', 'Warrior', 'Rogue', 'Monk'],
+          }
+        },
+        mounted: function() {
+        },
+        methods: {
+            createGroup(){
+                axios.post(`/dev/createChar`, this.form)
+                .then(window.location.href = '/dev/search',
+                (error) => {
+                    console.error(error);
+                });
+            }
+        }
+    })
+     
+</script>
