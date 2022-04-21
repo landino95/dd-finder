@@ -19,6 +19,13 @@ const dbQuery = async function dbQuery(sql) {
     return results[0];
 }
 
+// db.end(function(err) {
+//   if(err) {
+//     return console.error(err)
+//   }
+//   console.log('Connenction Ended')
+// })
+
 module.exports = {
     dbQuery
 }

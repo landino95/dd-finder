@@ -137,7 +137,7 @@
           ></b-form-input><span>{{ form.charisma }}</span>
       </b-form-group>
 
-      <b-button type="submit" variant="primary">Submit</b-button>
+      <b-button type="submit" variant="danger">Create</b-button>
     </b-form>
     <!-- <b-card class="mt-3" header="Form Data Result">
       <pre class="m-0">{{ form }}</pre>
@@ -160,7 +160,8 @@
               constitution: '',
               intelligence: '',
               wisdom: '',
-              charisma: ''
+              charisma: '',
+              userId: 1
             },
             race: [{ text: 'Select Race', value: null }, 'Orc', 'Elf', 'Human', 'Breton'],
             charClass: [{ text: 'Select Class', value: null }, 'Mage', 'Warrior', 'Rogue', 'Monk'],

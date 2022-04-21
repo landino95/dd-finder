@@ -5,8 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group</title>
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 </head>
 <body>
     <hr>
@@ -14,14 +17,23 @@
         <h1>{{groupInfo.group_name}}</h1>
         <!-- <span>Group created on {{groupInfo.created_on}}</span> -->
         <p>Tags: {{groupInfo.style}} {{groupInfo.play_type}} {{groupInfo.genre}}</p>
+        <b-button @click="selected = true" variant="danger">Join Group</b-button>
+        <div v-if="selected">
+        <label for="select">Choose a character:</label>
+        <select v-model="select" id="select" @change="joinGroup($event)">
+            <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
+        </select></div>
         <h3>Characters</h3>
         <hr>
         <ul>
             <!-- <li v-for="character in characters" v-text="character.name"></li> -->
-            <a :href="'/dev/character-page?characterId='+ character.char_id" v-for="(character, index) in characters"><li>{{group[index].char_name}}</li></a>
+            <a :href="'/dev/character-page?characterId='+ character.char_id" v-for="(character, index) in characters"><li>{{characters[index].char_name}}</li></a>
         </ul>
         <hr>
         <h4>Group Posts</h4>
+        <div v-if="!posts.length">
+        <span v-if="!posts.length">No Posts Yet</span>
+        <b-button>Add Post</b-button></div>
         <ul>
             <a :href="'/dev/posts-page?postId='+ post.annc_id" v-for="(post, index) in posts"><li>{{post.title}}</li></a>
         </ul>
@@ -39,36 +51,56 @@
             characters: [],
             posts: [],
             groupId: location.href.split('?')[1].split('&')[0].split('=')[1],
+            charId: 7,
+            userId: 1,
+            user: '',
+            userChars: [],
+            select: null,
+            selected: false,
           }
         },
         mounted: function() {
-        //   this.getGroupChars();
+          this.getGroupChars();
           this.getGroup();
-        //   this.getPosts();
+          this.getPosts();
+          this.getUser();
         },
         methods: {
-            joinGroup() {
-                console.log(this.groupId);
+            getUser(){
+                axios.get(`/dev/userChars/${this.userId}`)
+                .then(response => (this.userChars = response.data, console.log(response)),
+                (error) => {
+                    console.log(error);
+                });
             },
             getGroup() {
-                console.log(this.groupId)
                 axios.get(`/dev/groups/${this.groupId}`)
-                .then(response => (this.group = response.data, this.groupInfo = response.data[0], console.log(response.data)),
+                .then(response => (this.group = response.data, this.groupInfo = response.data[0]),
                 (error) => {
                     console.error(error);
                 }); 
+            },
+            getGroupChars() {
                 axios.get(`/dev/groupCharacters/${this.groupId}`)
                 .then(response => (this.characters = response.data),
                 (error) => {
                     console.error(error);
                 });
-                // axios.get(`/dev/groups/${this.groupId}/posts`)
-                // .then(response => (this.posts = response.data, console.log(response)),
-                // (error) => {
-                //     console.error(error);
-                // });
+            },
+            joinGroup(event) {
+                axios.post(`/dev/joinGroup`, {groupId: this.groupId, charId: event.target.value})
+                .then(response => console.log(response)),
+                (error) => {
+                    console.error(error)
+                }
+                this.getGroup()
             },
             getPosts() {
+                axios.get(`/dev/groups/posts/${this.groupId}`)
+                .then(response => (this.posts = response.data),
+                (error) => {
+                    console.error(error);
+                });
             }
         }
     })

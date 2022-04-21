@@ -71,8 +71,9 @@ app.get('/home', (req, res) => {
 app.post('/auth', api.authorize);
 app.get('/groups', api.getAllGroups);
 app.get('/groups/:id', api.getGroups);
+app.post('/joinGroup', api.joinGroup);
 app.get('/groupCharacters/:id', api.getGroupChars);
-app.get('/groups/:id/posts', api.getGroupPosts);
+app.get('/groups/posts/:id', api.getGroupPosts);
 app.post('/createGroup', api.createGroup);
 
 app.post('/createChar', api.createChar);
@@ -84,4 +85,5 @@ app.post('/likes', api.likes);
 app.post('/comments', api.writeComments);
 
 app.get('/user/:id', api.getUser);
+app.get('/userChars/:id', api.getUserChars);
 module.exports = app;
