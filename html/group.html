@@ -29,35 +29,73 @@
                 <template #button-content>
                   <em>User</em>
                 </template>
-                  <b-dropdown-item href="#">Profile</b-dropdown-item>
+                  <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
                   <b-dropdown-item href="#">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-        <h2>{{groupInfo.group_name}}</h2>
-        <!-- <span>Group created on {{groupInfo.created_on}}</span> -->
-        <p>Tags: {{groupInfo.style}} {{groupInfo.play_type}} {{groupInfo.genre}}</p>
-        <b-button @click="selected = true" variant="danger">Join Group</b-button>
-        <div v-if="selected">
-        <label for="select">Choose a character:</label>
-        <select v-model="select" id="select" @change="joinGroup($event)">
-            <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
-        </select></div>
-        <h3>Characters</h3>
-        <hr>
-        <ul>
-            <!-- <li v-for="character in characters" v-text="character.name"></li> -->
-            <a :href="'/dev/character-page?characterId='+ character.char_id" v-for="(character, index) in characters"><li>{{characters[index].char_name}}</li></a>
-        </ul>
-        <hr>
-        <h4>Group Posts</h4>
-        <div v-if="!posts.length">
-        <span v-if="!posts.length">No Posts Yet</span>
-        <b-button>Add Post</b-button></div>
-        <ul>
-            <a :href="'/dev/posts-page?postId='+ post.annc_id" v-for="(post, index) in posts"><li>{{post.title}}</li></a>
-        </ul>
+    <div class="text-center" v-if="loading">
+        <b-spinner></b-spinner>
+    </div>
+    <b-card text-variant="danger" :title="groupInfo.group_name" :sub-title="groupInfo.description">
+        <p>{{groupInfo.style}} {{groupInfo.play_type}} {{groupInfo.genre}}</p>
+      <b-card-text>
+        Characters
+        <b-list-group v-if="characters.length">
+          <b-list-group-item :href="'/dev/character-page?charId='+ character.char_id" v-for="(character, index) in characters">{{character.char_name}}</b-list-group-item>
+        </b-list-group> 
+        <p v-if="!characters.length" style="color: black;">No Characters In Group</p>
+      </b-card-text>
+      <b-card-text>
+        Posts
+        <b-list-group v-if="posts.length">
+          <b-list-group-item :href="'/dev/posts-page?postId='+ post.annc_id" v-for="post in posts">{{post.title}}</b-list-group-item>
+        </b-list-group> 
+        <p style="color: black;" v-if="!posts.length">No Posts Yet</p>
+        <b-button v-if="!makePost" @click="makePost = true" variant="outline-danger" class="mt-2">
+            Add Post 
+        </b-button>
+        <b-container fluid v-if="makePost" class="mt-2">
+          <b-row>
+            <b-col sm="2">
+              <label for="textarea-small">Title:</label>
+            </b-col>
+            <b-col sm="10">
+              <b-form-textarea
+                id="titlearea"
+                size="sm"
+                placeholder="Enter a title..."
+                v-model="title"
+              ></b-form-textarea>
+            </b-col>
+          </b-row>
+        
+          <b-row class="mt-2">
+            <b-col sm="2">
+              <label for="textarea-default">Text:</label>
+            </b-col>
+            <b-col sm="10">
+              <b-form-textarea
+                id="textarea"
+                placeholder="Enter text for post..."
+                v-model="text"
+              ></b-form-textarea>
+            </b-col>
+          </b-row>
+          <b-button @click="makePost = false">Cancel</b-button>
+          <b-button @click="createPost" variant="danger">Submit</b-button>       
+        </b-container>
+      </b-card-text>
+      <b-button @click="selected = true" variant="danger">Join Group</b-button>
+      <div v-if="selected" class="mt-2">
+        <b-button @click="selected = false">Cancel</b-button>
+      <label for="select">Choose a character:</label>
+      <select v-model="select" id="select" @change="joinGroup($event)">
+          <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
+      </select>
+    </div>
+    </b-card>
     </div>
 </body>
 </html>
@@ -78,6 +116,10 @@
             userChars: [],
             select: null,
             selected: false,
+            loading: false,
+            makePost: false,
+            text: '',
+            title: ''
           }
         },
         mounted: function() {
@@ -85,25 +127,26 @@
           this.getGroup();
           this.getPosts();
           this.getUser();
+          this.loading = true;
         },
         methods: {
             getUser(){
                 axios.get(`/dev/userChars/${this.userId}`)
-                .then(response => (this.userChars = response.data, console.log(response)),
+                .then(response => (this.userChars = response.data, this.loading = false),
                 (error) => {
                     console.log(error);
                 });
             },
             getGroup() {
                 axios.get(`/dev/groups/${this.groupId}`)
-                .then(response => (this.group = response.data, this.groupInfo = response.data[0]),
+                .then(response => (this.group = response.data, this.groupInfo = response.data[0], this.loading = false),
                 (error) => {
                     console.error(error);
                 }); 
             },
             getGroupChars() {
                 axios.get(`/dev/groupCharacters/${this.groupId}`)
-                .then(response => (this.characters = response.data),
+                .then(response => (this.characters = response.data, this.loading = false),
                 (error) => {
                     console.error(error);
                 });
@@ -114,14 +157,21 @@
                 (error) => {
                     console.error(error)
                 }
-                this.getGroup()
+                window.location.reload();
             },
             getPosts() {
                 axios.get(`/dev/groups/posts/${this.groupId}`)
-                .then(response => (this.posts = response.data),
+                .then(response => (this.posts = response.data, this.loading = false),
                 (error) => {
                     console.error(error);
                 });
+            },
+            createPost() {
+                axios.post(`/dev/createPost`, {groupId: this.groupId, text: this.text, title: this.title})
+                .then(window.location.reload()),
+                (error) => {
+                    consol.error(error)
+                }
             }
         }
     })

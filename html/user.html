@@ -30,12 +30,15 @@
                 <template #button-content>
                   <em>User</em>
                 </template>
-                  <b-dropdown-item href="#">Profile</b-dropdown-item>
+                  <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
                   <b-dropdown-item href="#">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
       </b-collapse>
     </b-navbar>
+    <div class="text-center" v-if="loading">
+      <b-spinner></b-spinner>
+    </div>
     <b-card text-variant="danger" :title="userInfo.user_name" :sub-title="userInfo.email">
       <b-card-text>
         Characters
@@ -64,13 +67,15 @@
             userId: location.href.split('?')[1].split('&')[0].split('=')[1],
             groups: [],
             user: [],
-            userInfo: ''
+            userInfo: '',
+            loading: false
           }
         },
         mounted: function() {
           this.getUser();
           this.getUserChars();
           this.getUserGroups();
+          this.loading = true;
         },
         methods: {
             joinGroup() {
@@ -81,21 +86,21 @@
             },
             getUser() {
              axios.get(`/dev/user/${this.userId}`)
-                .then(response => (this.user = response.data, this.userInfo = response.data[0], console.log(response)),
+                .then(response => (this.user = response.data, this.userInfo = response.data[0], this.loading = false),
                 (error) => {
                     console.log(error);
                 }); 
             },
             getUserChars() {
               axios.get(`/dev/userChars/${this.userId}`)
-              .then(response => (this.characters = response.data, this.userInfo = response.data[0], console.log(response)),
+              .then(response => (this.characters = response.data, this.loading = false),
               (error) => {
                   console.log(error);
               });
             },
             getUserGroups() {
               axios.get(`/dev/userGroups/${this.userId}`)
-              .then(response => (this.groups = response.data, this.userInfo = response.data[0], console.log(response)),
+              .then(response => (this.groups = response.data, this.loading = false),
               (error) => {
                   console.log(error);
               });

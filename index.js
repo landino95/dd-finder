@@ -80,6 +80,7 @@ app.post('/createChar', api.createChar);
 app.get('/character/:id', api.getChar);
 
 app.get('/post/:id', api.getPost);
+app.post('/createPost', api.createPost);
 app.get('/comments/:id', api.getComments);
 app.post('/likes', api.likes);
 app.post('/comments', api.writeComments);

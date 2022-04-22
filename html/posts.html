@@ -29,32 +29,55 @@
                 <template #button-content>
                   <em>User</em>
                 </template>
-                  <b-dropdown-item href="#">Profile</b-dropdown-item>
+                  <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
                   <b-dropdown-item href="#">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-       <h3>
-            <a :href="'/dev/group-page?groupId='+ post.group_id">{{post.group_name}}</a>
-       </h3>
-       <h4>{{post.title}}</h4>
-       <p>{{post.text}}</p>
-        <br>
-        <input v-model="newComment" placeholder="Type your comment here">
-        <button v-on:click="addComment(post.annc_id, post.group_id)">Comment</button>
-       <h4>All Comments</h4>
-       <p>Sort By</p>
-       <select>
-           <option value="new">New</option>
-           <option value="likes">Likes</option>
-        </select>
-        <div v-for="(comment, index) in comments">
-            <b><p>{{comment.user_name}}</p></b>
-            <p>{{comment.text}}</p>
-            <span>{{comment.likes}} Likes</span>
-            <button v-on:click="addLike(comment.likes, comment.comment_id)">Like</button>
+    <div class="text-center" v-if="loading">
+        <b-spinner></b-spinner>
+    </div>
+    <b-button size="sm" :href="'/dev/group-page?groupId=' + post.group_id" variant="outline-danger" class="m-2">Back</b-button>
+    <b-card text-variant="danger" :title="post.group_name" class="mt-2">
+      <b-card-text>
+        {{post.title}}
+        <p style="color: black;">{{post.text}}</p>
+      </b-card-text>
+      <b-card-text>
+        <b-container fluid class="mt-2">
+          <b-row>
+            <label for="textarea-small">Add Comment:</label>
+            <b-col sm="10">
+              <b-form-textarea
+              id="titlearea"
+              size="sm"
+              placeholder="Enter a comment..."
+              v-model="newComment"
+              ></b-form-textarea>
+            </b-col>
+          </b-row>
+          <b-button @click="addComment(post.annc_id, post.group_id)" variant="danger" class="mt-2">
+            Add Comment
+          </b-button>
+        </b-container>
+      </b-card-text>
+          <h4>All Comments</h4>
+          <div class="mt-4">
+            <ul class="list-unstyled" >
+              <b-media tag="li" v-for="(comment, index) in comments" class="mt-4">
+                <h5 style="color: black;" class="mt-0 mb-1">{{comment.text}}</h5>
+                <p class="mb-0">
+                  {{comment.user_name}}
+                </p>
+                <p class="mb-0" style="color: grey;">
+                  {{comment.likes}} Likes
+                </p>
+              <b-button size="sm" v-on:click="addLike(comment.likes, comment.comment_id)">Like</b-button>
+            </b-media>
+          </ul>
         </div>
+    </b-card>
    </div> 
 </body>
 </html>
@@ -69,6 +92,7 @@
             comments: [],
             newComment: '',
             likes: '',
+            loading: false
           }
         },
         mounted: function() {
@@ -92,22 +116,19 @@
             },
             addComment(anncId, groupId){
                 console.log(anncId, groupId)
-                // axios.post(`/dev/comments`, {text: this.newComment, userId: 3, groupId: 1, anncId: 1, parentId: 0, likes: 0})
-                // .then(response => (console.log(response)),
-                // (error) => {
-                //     console.log(error);
-                // });
-                // this.newComment = '';
-                // this.getComments();
+                axios.post(`/dev/comments`, {text: this.newComment, userId: 1, groupId: groupId, anncId: anncId, parentId: 0, likes: 0})
+                .then(response => this.newComment = '', window.location.reload(), (console.log(response)),
+                (error) => {
+                    console.log(error);
+                });
             },
             addLike(likes, id){
                 console.log(likes)
                 axios.post(`/dev/likes`, {likes: likes + 1, id: id})
-                .then(response => (console.log(response)),
+                .then(response => (console.log(response), window.location.reload()),
                 (error) => {
                     console.log(error);
                 });
-                this.getComments();
             }
         }
     })

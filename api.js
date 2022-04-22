@@ -92,13 +92,27 @@ const getGroupPosts = async function(req, res) {
 const getPost = async function(req, res) {
     const id = req.params.id;
     const sql = `select posts.text, posts.annc_id, posts.group_id, posts.title, player_groups.group_name
-                from posts
-                inner join player_groups on posts.group_id = player_groups.group_id where posts.annc_id=${id};`;
+            from posts
+            inner join player_groups on posts.group_id = player_groups.group_id where posts.annc_id=${id};`;
     try {
         const result = await dbQuery.dbQuery(sql);
         return res.send(result);
     } catch (error) {
        console.error(error);
+    }
+}
+
+const createPost = async function(req, res) {
+    const id = req.body.groupId;
+    const text = req.body.text;
+    const title = req.body.title;
+    const sql = `INSERT INTO posts (text, title, group_id)
+    VALUES ("${text}", "${title}", ${id});`
+    try {
+        const result = await dbQuery.dbQuery(sql);
+        return res.send(result);
+    } catch (error) {
+        console.error(error);
     }
 }
 
@@ -116,9 +130,9 @@ inner join users on users.user_id = comments.user_id where posts.annc_id=${id};`
        console.error(error);
     }
 }
-const writeComments = async function(res, res) {
+const writeComments = async function(req, res) {
     const data = req.body;
-    const sql = `insert into comments (text, char_id, group_id, annc_id, parent_comm, likes) values ("${data.text}", ${data.charId}, ${data.groupId}, ${data.anncId}, ${data.parentId}, ${data.likes});`;
+    const sql = `insert into comments (text, user_id, group_id, annc_id, parent_comm, likes) values ("${data.text}", ${data.userId}, ${data.groupId}, ${data.anncId}, ${data.parentId}, ${data.likes});`;
     try {
         const result = await dbQuery.dbQuery(sql);
         return res.send(result);
@@ -218,6 +232,7 @@ module.exports = {
    getGroupChars,
    getGroupPosts,
    getPost,
+   createPost,
    getComments,
    writeComments,
    likes,

@@ -2,7 +2,7 @@
   "devDependencies": {
     "serverless-aws-static-file-handler": "^3.1.4",
     "serverless-iam-roles-per-function": "^3.2.0",
-    "serverless-offline": "^8.5.0"
+    "serverless-offline": "^8.7.0"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.54.0",

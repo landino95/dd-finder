@@ -11,8 +11,8 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 </head>
-<body>
-  <div id="app" style="background-color: grey;">
+<body style="background-color: whitesmoke;">
+  <div id="app">
     <b-navbar toggleable="lg" type="dark" variant="danger">
       <b-navbar-brand href="/dev/home">D&D Group Finder</b-navbar-brand>
       
@@ -29,14 +29,14 @@
                 <template #button-content>
                   <em>User</em>
                 </template>
-                  <b-dropdown-item href="#">Profile</b-dropdown-item>
+                  <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
                   <b-dropdown-item href="#">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-    <h2>Create Character</h2>
-    <b-form @submit="createGroup">
+    <b-form @submit="createGroup" class="m-3">
+      <h2>Create Character</h2>
       <b-form-group
         id="input-group-1"
         label="Character Name:"
@@ -81,7 +81,7 @@
           type="range"
           min="0"
           max="20"
-          ></b-form-input><span>{{ form.strength }}</span>
+        ></b-form-input><span>{{ form.strength }}</span>
       </b-form-group>
     <b-form-group
         id="input-group-5"
