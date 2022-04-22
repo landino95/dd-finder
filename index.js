@@ -86,4 +86,5 @@ app.post('/comments', api.writeComments);
 
 app.get('/user/:id', api.getUser);
 app.get('/userChars/:id', api.getUserChars);
+app.get('/userGroups/:id', api.getUserGroups);
 module.exports = app;

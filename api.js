@@ -1,10 +1,8 @@
 const dbQuery = require('./js/db');
 const getUser = async function (req, res) {
     const id = req.params.id;
-    const sql =  `select characters.char_name, characters.char_id, characters.group_id, users.user_name, users.email, player_groups.group_name
-                from characters
-            inner join player_groups on player_groups.group_id = characters.group_id
-            inner join users on users.user_id = characters.user_id where users.user_id=${id}`;
+
+    const sql = `SELECT * FROM users WHERE user_id = ${id};`
     try {
         const result = await dbQuery.dbQuery(sql);
         return res.send(result);
@@ -15,6 +13,19 @@ const getUser = async function (req, res) {
 const getUserChars = async function(req, res) {
     const id = req.params.id;
     const sql = `SELECT * FROM characters WHERE user_id = ${id};`
+    try {
+        const result = await dbQuery.dbQuery(sql);
+        return res.send(result);
+    } catch (error) {
+        console.error(error);
+    }
+}
+const getUserGroups = async function(req, res) {
+    const id = req.params.id;
+        const sql =  `select characters.char_name, characters.char_id, characters.group_id, users.user_name, users.email, player_groups.group_name
+                from characters
+            inner join player_groups on player_groups.group_id = characters.group_id
+            inner join users on users.user_id = characters.user_id where users.user_id=${id}`;
     try {
         const result = await dbQuery.dbQuery(sql);
         return res.send(result);
@@ -215,5 +226,6 @@ module.exports = {
    createChar,
    authorize,
    joinGroup,
-   getUserChars
+   getUserChars,
+   getUserGroups
 }

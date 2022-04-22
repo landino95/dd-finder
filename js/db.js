@@ -16,15 +16,16 @@ db.connect(function(err) {
 
 const dbQuery = async function dbQuery(sql) {
     const results = await db.promise().query(sql)
+    // db.end()
+    db.end(function(err) {
+      if(err) {
+        return console.error(err)
+      }
+      console.log('Connenction Ended')
+    })
     return results[0];
 }
 
-// db.end(function(err) {
-//   if(err) {
-//     return console.error(err)
-//   }
-//   console.log('Connenction Ended')
-// })
 
 module.exports = {
     dbQuery
