@@ -187,6 +187,23 @@ const createGroup = async function(req, res) {
     }
 }
 
+const updateGroup = async function(req, res) {
+    const data = req.body;
+    const sql = `UPDATE player_groups
+                SET description="${data.description}", group_name="${data.groupName}",
+                genre="${data.genre}", level="${data.level}", dm="${data.dm}",
+                play_type="${data.playType}", style="${data.playStyle}"
+                WHERE group_id = ${data.groupId};`
+    console.log(sql)
+    try {
+        const result = await dbQuery.dbQuery(sql);
+        console.log(result)
+        return res.send(result)
+    } catch (error) {
+        console.error(error);        
+    }
+}
+
 const createChar = async function(req, res) {
     const data = req.body;
     const sql = `INSERT INTO characters (user_id, race, class, strength, dexterity, constitution, intelligence, wisdom, charisma, char_name) values ("${data.userId}", "${data.race}", "${data.charClass}", "${data.strength}", "${data.dexterity}", "${data.constitution}", "${data.intelligence}", "${data.wisdom}", "${data.charisma}", "${data.charName}");`
@@ -197,6 +214,21 @@ const createChar = async function(req, res) {
        console.error(error);
     }
 }
+
+const updateChar = async function(req, res) {
+    const data = req.body;
+    console.log(data)
+    const sql = `UPDATE characters 
+                SET race="${data.race}", class="${data.class}", strength=${data.strength}, dexterity=${data.dexterity}, constitution=${data.constitution}, intelligence=${data.intelligence}, wisdom=${data.wisdom}, charisma=${data.charisma}, char_name="${data.char_name}"
+                WHERE char_id = ${data.charId}`
+    try {
+        const result = await dbQuery.dbQuery(sql);
+        return res.send(result);
+    } catch (error) {
+       console.error(error);
+    }
+}
+
 const authorize = async function(req, res) {
     let username = req.body.username;
 	let password = req.body.password;
@@ -232,15 +264,17 @@ module.exports = {
    getGroupChars,
    getGroupPosts,
    getPost,
-   createPost,
+   getUserChars,
+   getUserGroups,
    getComments,
+   getAllGroups,
    writeComments,
    likes,
-   getAllGroups,
+   createPost,
    createGroup,
    createChar,
    authorize,
    joinGroup,
-   getUserChars,
-   getUserGroups
+   updateChar,
+   updateGroup
 }

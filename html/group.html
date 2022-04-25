@@ -38,7 +38,9 @@
     <div class="text-center" v-if="loading">
         <b-spinner></b-spinner>
     </div>
-    <b-card text-variant="danger" :title="groupInfo.group_name" :sub-title="groupInfo.description">
+    <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
+    <b-button v-if="!edit" size="sm" variant="outline-danger" @click="edit=true" class="m-2">Edit</b-button>
+    <b-card v-if="!edit" text-variant="danger" :title="groupInfo.group_name" :sub-title="groupInfo.description">
         <p>{{groupInfo.style}} {{groupInfo.play_type}} {{groupInfo.genre}}</p>
       <b-card-text>
         Characters
@@ -87,6 +89,7 @@
           <b-button @click="createPost" variant="danger">Submit</b-button>       
         </b-container>
       </b-card-text>
+
       <b-button @click="selected = true" variant="danger">Join Group</b-button>
       <div v-if="selected" class="mt-2">
         <b-button @click="selected = false">Cancel</b-button>
@@ -95,6 +98,75 @@
           <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
       </select>
     </div>
+    </b-card>
+    <b-form v-if="edit" class="m-3">
+      <h2>Edit Group</h2>
+      <b-form-group
+        id="input-group-1"
+        label="Group Name:"
+        label-for="input-1"
+      >
+        <b-form-input
+          id="input-1"
+          v-model="form.groupName"
+          placeholder="Enter Group name"
+          required
+        ></b-form-input>
+      </b-form-group>
+
+      <b-form-group
+        id="input-group-2"
+        label="Group Description:"
+        label-for="input-2"
+      >
+        <b-form-input
+          id="input-2"
+          v-model="form.description"
+          placeholder="Enter Group Description"
+          required
+        ></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-3" label="Genre:" label-for="input-3">
+        <b-form-select
+          id="input-3"
+          v-model="form.genre"
+          :options="genre"
+          required
+        ></b-form-select>
+      </b-form-group>
+
+    <b-form-group id="input-group-4" label="Level:" label-for="input-4">
+        <b-form-select
+          id="input-4"
+          v-model="form.level"
+          :options="level"
+          required
+        ></b-form-select>
+      </b-form-group>
+
+        <b-form-group id="input-group-5" label="Play Style:" label-for="input-5">
+        <b-form-select
+          id="input-5"
+          v-model="form.playStyle"
+          :options="playStyle"
+          required
+        ></b-form-select>
+      </b-form-group>
+
+    <b-form-group id="input-group-6" label="Play Type:" label-for="input-6">
+        <b-form-select
+          id="input-6"
+          v-model="form.playType"
+          :options="playType"
+          required
+        ></b-form-select>
+      </b-form-group>
+
+      <b-button @click="updateGroup" variant="danger" class="mt-2">Submit</b-button>
+    </b-form>
+    <b-card class="mt-3" header="Form Data Result">
+        <pre class="m-0">{{ form }}</pre>
     </b-card>
     </div>
 </body>
@@ -119,7 +191,23 @@
             loading: false,
             makePost: false,
             text: '',
-            title: ''
+            title: '',
+            form : {
+                groupId: '',
+                description: '',
+                groupName: '',
+                genre: null,
+                level: null,
+                dm: 1,
+                playType: null,
+                playStyle: null,
+                createdOn: null
+            },
+            genre: [{ text: 'Select Genre', value: null }, 'Fantasy', 'Historical', 'Sci-Fi'],
+            level: [{ text: 'Select Level', value: null }, 'Beginner', 'Intermediate', 'Expert'],
+            playType: [{ text: 'Select Play Type', value: null }, 'Online', 'Face-to-Face', 'Hybrid'],
+            playStyle: [{ text: 'Select Play Style', value: null }, 'Normal', 'Funny'],
+            edit: false
           }
         },
         mounted: function() {
@@ -139,7 +227,7 @@
             },
             getGroup() {
                 axios.get(`/dev/groups/${this.groupId}`)
-                .then(response => (this.group = response.data, this.groupInfo = response.data[0], this.loading = false),
+                .then(response => (console.log(response.data), this.group = response.data, this.groupInfo = response.data[0], this.form = response.data[0], this.loading = false),
                 (error) => {
                     console.error(error);
                 }); 
@@ -170,7 +258,15 @@
                 axios.post(`/dev/createPost`, {groupId: this.groupId, text: this.text, title: this.title})
                 .then(window.location.reload()),
                 (error) => {
-                    consol.error(error)
+                    console.error(error)
+                }
+            },
+            updateGroup() {
+                this.form.groupId = parseInt(this.groupId);
+                axios.post('/dev/updateGroup', this.form)
+                .then(window.location.reload()),
+                (error) => {
+                  console.error(error)
                 }
             }
         }
