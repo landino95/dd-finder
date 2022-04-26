@@ -69,14 +69,17 @@ app.get('/home', (req, res) => {
 });
 
 app.post('/auth', api.authorize);
+
 app.get('/groups', api.getAllGroups);
 app.get('/groups/:id', api.getGroups);
 app.post('/joinGroup', api.joinGroup);
 app.get('/groupCharacters/:id', api.getGroupChars);
 app.get('/groups/posts/:id', api.getGroupPosts);
 app.post('/createGroup', api.createGroup);
+app.post('/updateGroup', api.updateGroup);
 
 app.post('/createChar', api.createChar);
+app.post('/updateChar', api.updateChar);
 app.get('/character/:id', api.getChar);
 
 app.get('/post/:id', api.getPost);
