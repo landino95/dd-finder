@@ -65,7 +65,7 @@ const getGroups = async function (req, res) {
 const getGroupChars = async function(req, res) {
     const id = req.params.id;
     console.log(id)
-    const sql = `SELECT char_id, char_name FROM characters WHERE group_id = ${id}`;
+    const sql = `SELECT * FROM characters WHERE group_id = ${id}`;
     try {
         const result = await dbQuery.dbQuery(sql);
         console.log(result)

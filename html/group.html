@@ -14,7 +14,7 @@
 <body>
     <div id="app">
     <b-navbar toggleable="lg" type="dark" variant="danger">
-      <b-navbar-brand href="/dev/home">D&D Group Finder</b-navbar-brand>
+      <b-navbar-brand href="/dev/home" class="mx-3">D&D Group Finder</b-navbar-brand>
       
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       
@@ -38,66 +38,71 @@
     <div class="text-center" v-if="loading">
         <b-spinner></b-spinner>
     </div>
-    <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
-    <b-button v-if="!edit" size="sm" variant="outline-danger" @click="edit=true" class="m-2">Edit</b-button>
-    <b-card v-if="!edit" text-variant="danger" :title="groupInfo.group_name" :sub-title="groupInfo.description">
-        <p>{{groupInfo.style}} {{groupInfo.play_type}} {{groupInfo.genre}}</p>
-      <b-card-text>
-        Characters
-        <b-list-group v-if="characters.length">
-          <b-list-group-item :href="'/dev/character-page?charId='+ character.char_id" v-for="(character, index) in characters">{{character.char_name}}</b-list-group-item>
-        </b-list-group> 
-        <p v-if="!characters.length" style="color: black;">No Characters In Group</p>
-      </b-card-text>
-      <b-card-text>
-        Posts
-        <b-list-group v-if="posts.length">
-          <b-list-group-item :href="'/dev/posts-page?postId='+ post.annc_id" v-for="post in posts">{{post.title}}</b-list-group-item>
-        </b-list-group> 
-        <p style="color: black;" v-if="!posts.length">No Posts Yet</p>
-        <b-button v-if="!makePost" @click="makePost = true" variant="outline-danger" class="mt-2">
-            Add Post 
-        </b-button>
-        <b-container fluid v-if="makePost" class="mt-2">
-          <b-row>
-            <b-col sm="2">
-              <label for="textarea-small">Title:</label>
-            </b-col>
-            <b-col sm="10">
-              <b-form-textarea
-                id="titlearea"
-                size="sm"
-                placeholder="Enter a title..."
-                v-model="title"
-              ></b-form-textarea>
-            </b-col>
-          </b-row>
-        
+
+    <div class="m-3">
+      <h3>{{groupInfo.group_name}}</h3>
+      <h5 variant-text="danger">{{groupInfo.description}}</h5>
+      <p>{{groupInfo.style}} {{groupInfo.play_type}} {{groupInfo.genre}}</p>
+      <b-button @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
+      <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
+      <b-button v-if="!edit" size="sm" variant="outline-danger" @click="edit=true" class="m-2">Edit</b-button>
+      <div v-if="selected" class="my-2">
+        <b-button @click="selected = false">Cancel</b-button>
+        <label for="select">Choose a character:</label>
+        <select v-model="select" id="select" @change="joinGroup($event)">
+            <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
+        </select>
+      </div>
+      <h4 variant="danger">Characters</h4>
+    </div>
+    <div>
+      <b-card-group columns>
+        <b-card v-if="!edit" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in characters" bg-variant="dark" style="display: inline-block;" class="m-3">
+          <b-card-text>
+            <pre>Race: {{character.race}}</pre>
+            <pre>Strength: {{character.strength}}</pre>
+            <pre>Dexterity: {{character.dexterity}}</pre>
+            <pre>Constitution: {{character.constitution}}</pre>
+            <pre>Intelligence: {{character.intelligence}}</pre>
+            <pre>Wisdom: {{character.wisdom}}</pre>
+            <pre>Charisma: {{character.charisma}}</pre>
+            <p v-if="!characters.length" style="color: black;">No Characters In Group</p>
+          </b-card-text>
+        </b-card>
+      </b-card-group>
+    </div>
+      <h4 variant="danger" class="m-3">Posts</h4>
+      <b-button v-if="!makePost" @click="makePost = true" variant="danger" class="m-3">
+          Add Post 
+      </b-button>
+      <b-card v-if="!edit" text-variant="danger" :title="post.title" :sub-title="post.text" v-for="post in posts" bg-variant="dark" class="m-3">
+        <b-card-text>
+          <b-list-group v-if="posts.length">
+            <!-- <b-list-group-item :href="'/dev/posts-page?postId='+ post.annc_id" >{{post.title}}</b-list-group-item> -->
+          </b-list-group> 
+          <b-button v-if="!makeComment" @click="makeComment = true" variant="outline-danger" class="mt-2">
+              Comment 
+          </b-button>
+          <b-button variant="outline-danger" class="mt-2">
+            Like
+          </b-button>
+          <p style="color: black;" v-if="!posts.length">No Posts Yet</p>
+        </b-card-text>
+        <b-container fluid v-if="makeComment" class="mt-2">
           <b-row class="mt-2">
-            <b-col sm="2">
-              <label for="textarea-default">Text:</label>
-            </b-col>
             <b-col sm="10">
               <b-form-textarea
                 id="textarea"
-                placeholder="Enter text for post..."
-                v-model="text"
+                placeholder="Enter comment..."
+                v-model="commentText"
               ></b-form-textarea>
             </b-col>
           </b-row>
-          <b-button @click="makePost = false">Cancel</b-button>
-          <b-button @click="createPost" variant="danger">Submit</b-button>       
+          <div class="mt-2">
+          <b-button @click="makeComment = false">Cancel</b-button>
+          <b-button @click="createComment" variant="danger">Submit</b-button></div>       
         </b-container>
-      </b-card-text>
-
-      <b-button @click="selected = true" variant="danger">Join Group</b-button>
-      <div v-if="selected" class="mt-2">
-        <b-button @click="selected = false">Cancel</b-button>
-      <label for="select">Choose a character:</label>
-      <select v-model="select" id="select" @change="joinGroup($event)">
-          <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
-      </select>
-    </div>
+      </b-card>
     </b-card>
     <b-form v-if="edit" class="m-3">
       <h2>Edit Group</h2>
@@ -165,9 +170,9 @@
 
       <b-button @click="updateGroup" variant="danger" class="mt-2">Submit</b-button>
     </b-form>
-    <b-card class="mt-3" header="Form Data Result">
+    <!-- <b-card class="mt-3" header="Form Data Result">
         <pre class="m-0">{{ form }}</pre>
-    </b-card>
+    </b-card> -->
     </div>
 </body>
 </html>
@@ -191,6 +196,7 @@
             loading: false,
             makePost: false,
             text: '',
+            commentText: '',
             title: '',
             form : {
                 groupId: '',
@@ -207,7 +213,8 @@
             level: [{ text: 'Select Level', value: null }, 'Beginner', 'Intermediate', 'Expert'],
             playType: [{ text: 'Select Play Type', value: null }, 'Online', 'Face-to-Face', 'Hybrid'],
             playStyle: [{ text: 'Select Play Style', value: null }, 'Normal', 'Funny'],
-            edit: false
+            edit: false,
+            makeComment: false
           }
         },
         mounted: function() {
@@ -260,6 +267,9 @@
                 (error) => {
                     console.error(error)
                 }
+            },
+            createComment() {
+              console.log(this.commentText)
             },
             updateGroup() {
                 this.form.groupId = parseInt(this.groupId);
