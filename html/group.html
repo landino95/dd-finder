@@ -39,71 +39,88 @@
         <b-spinner></b-spinner>
     </div>
 
-    <div class="m-3">
-      <h3>{{groupInfo.group_name}}</h3>
-      <h5 variant-text="danger">{{groupInfo.description}}</h5>
-      <p>{{groupInfo.style}} {{groupInfo.play_type}} {{groupInfo.genre}}</p>
-      <b-button @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
+    <div>
       <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
       <b-button v-if="!edit" size="sm" variant="outline-danger" @click="edit=true" class="m-2">Edit</b-button>
-      <div v-if="selected" class="my-2">
-        <b-button @click="selected = false">Cancel</b-button>
-        <label for="select">Choose a character:</label>
-        <select v-model="select" id="select" @change="joinGroup($event)">
-            <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
-        </select>
-      </div>
-      <h4 variant="danger">Characters</h4>
-    </div>
-    <div>
-      <b-card-group columns>
-        <b-card v-if="!edit" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in characters" bg-variant="dark" style="display: inline-block;" class="m-3">
-          <b-card-text>
-            <pre>Race: {{character.race}}</pre>
-            <pre>Strength: {{character.strength}}</pre>
-            <pre>Dexterity: {{character.dexterity}}</pre>
-            <pre>Constitution: {{character.constitution}}</pre>
-            <pre>Intelligence: {{character.intelligence}}</pre>
-            <pre>Wisdom: {{character.wisdom}}</pre>
-            <pre>Charisma: {{character.charisma}}</pre>
-            <p v-if="!characters.length" style="color: black;">No Characters In Group</p>
-          </b-card-text>
-        </b-card>
-      </b-card-group>
-    </div>
-      <h4 variant="danger" class="m-3">Posts</h4>
-      <b-button v-if="!makePost" @click="makePost = true" variant="danger" class="m-3">
-          Add Post 
-      </b-button>
-      <b-card v-if="!edit" text-variant="danger" :title="post.title" :sub-title="post.text" v-for="post in posts" bg-variant="dark" class="m-3">
-        <b-card-text>
-          <b-list-group v-if="posts.length">
-            <!-- <b-list-group-item :href="'/dev/posts-page?postId='+ post.annc_id" >{{post.title}}</b-list-group-item> -->
-          </b-list-group> 
-          <b-button v-if="!makeComment" @click="makeComment = true" variant="outline-danger" class="mt-2">
-              Comment 
+      <b-card text-variant="danger" :title="groupInfo.group_name" :sub-title="groupInfo.description" v-if="!edit">
+        <div class="m-3">
+          <b-button @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
+          <div v-if="selected" class="my-2">
+            <b-button @click="selected = false">Cancel</b-button>
+            <label for="select">Choose a character:</label>
+            <select v-model="select" id="select" @change="joinGroup($event)">
+                <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
+            </select>
+          </div>
+        </div>
+        <h3>Characters</h3>
+        <b-card-group columns>
+          <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in characters" bg-variant="dark" style="display: inline-block;" class="m-3">
+            <b-card-text>
+              <pre>Race: {{character.race}}</pre>
+              <pre>Strength: {{character.strength}}</pre>
+              <pre>Dexterity: {{character.dexterity}}</pre>
+              <pre>Constitution: {{character.constitution}}</pre>
+              <pre>Intelligence: {{character.intelligence}}</pre>
+              <pre>Wisdom: {{character.wisdom}}</pre>
+              <pre>Charisma: {{character.charisma}}</pre>
+              <p v-if="!characters.length" style="color: black;">No Characters In Group</p>
+            </b-card-text>
+          </b-card>
+        </b-card-group>
+        <h3>Posts</h3>
+        <b-card-group deck>
+          <b-button v-if="!makePost" @click="makePost = true" variant="danger" class="m-3">
+              Add Post 
           </b-button>
-          <b-button variant="outline-danger" class="mt-2">
-            Like
-          </b-button>
-          <p style="color: black;" v-if="!posts.length">No Posts Yet</p>
-        </b-card-text>
-        <b-container fluid v-if="makeComment" class="mt-2">
-          <b-row class="mt-2">
-            <b-col sm="10">
-              <b-form-textarea
-                id="textarea"
-                placeholder="Enter comment..."
-                v-model="commentText"
-              ></b-form-textarea>
-            </b-col>
-          </b-row>
-          <div class="mt-2">
-          <b-button @click="makeComment = false">Cancel</b-button>
-          <b-button @click="createComment" variant="danger">Submit</b-button></div>       
-        </b-container>
+          <b-container fluid v-if="makePost" class="mt-2">
+              <b-row class="mt-2">
+                <b-col sm="10">
+                  <b-form-textarea
+                    id="textarea"
+                    placeholder="Enter comment..."
+                    v-model="text"
+                  ></b-form-textarea>
+                </b-col>
+              </b-row>
+              <div class="mt-2">
+              <b-button @click="makePost = false">Cancel</b-button>
+              <b-button @click="createPost()" variant="danger">Submit</b-button></div>
+          </b-container>
+          <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="post.title" :sub-title="post.text" v-for="(post, index) in posts" bg-variant="dark" class="m-3">
+            <b-card-text>
+              <b-button v-if="!makeComment" @click="makeComment = true" variant="outline-danger" class="mt-2">
+                Comment 
+              </b-button>
+              <b-button @click="getComments(post.annc_id)" variant="outline-danger" class="mt-2">
+                Show Comments 
+              </b-button>
+              <b-button variant="outline-danger" class="mt-2">
+                Like
+              </b-button>
+              <b-list-group v-if="posts.length">
+                <b-list-group-item v-if="post.annc_id == comment.annc_id" v-for="comment in comments" class="mt-2">{{comment.text}}</b-list-group-item>
+              </b-list-group> 
+              <p style="color: black;" v-if="!posts.length">No Posts Yet</p>
+            </b-card-text>
+            <b-container fluid v-if="makeComment" class="mt-2">
+              <b-row class="mt-2">
+                <b-col sm="10">
+                  <b-form-textarea
+                    id="textarea"
+                    placeholder="Enter comment..."
+                    v-model="commentText"
+                  ></b-form-textarea>
+                </b-col>
+              </b-row>
+              <div class="mt-2">
+              <b-button @click="makeComment = false">Cancel</b-button>
+              <b-button @click="createComment(post.annc_id, post.group_id)" variant="danger">Submit</b-button></div>
+            </b-container>
+          </b-card>
+        </b-card-group>
       </b-card>
-    </b-card>
+    </div>
     <b-form v-if="edit" class="m-3">
       <h2>Edit Group</h2>
       <b-form-group
@@ -113,7 +130,7 @@
       >
         <b-form-input
           id="input-1"
-          v-model="form.groupName"
+          v-model="form.group_name"
           placeholder="Enter Group name"
           required
         ></b-form-input>
@@ -153,7 +170,7 @@
         <b-form-group id="input-group-5" label="Play Style:" label-for="input-5">
         <b-form-select
           id="input-5"
-          v-model="form.playStyle"
+          v-model="form.style"
           :options="playStyle"
           required
         ></b-form-select>
@@ -162,7 +179,7 @@
     <b-form-group id="input-group-6" label="Play Type:" label-for="input-6">
         <b-form-select
           id="input-6"
-          v-model="form.playType"
+          v-model="form.play_type"
           :options="playType"
           required
         ></b-form-select>
@@ -214,7 +231,10 @@
             playType: [{ text: 'Select Play Type', value: null }, 'Online', 'Face-to-Face', 'Hybrid'],
             playStyle: [{ text: 'Select Play Style', value: null }, 'Normal', 'Funny'],
             edit: false,
-            makeComment: false
+            makeComment: false,
+            postId: '',
+            comments: '',
+            likes: 0
           }
         },
         mounted: function() {
@@ -261,6 +281,14 @@
                     console.error(error);
                 });
             },
+            getComments(postId) {
+                console.log(postId)
+                axios.get(`/dev/comments/${postId}`)
+                    .then(response => (this.comments = response.data, console.log(response)),
+                    (error) => {
+                        console.log(error);
+                    });
+            },
             createPost() {
                 axios.post(`/dev/createPost`, {groupId: this.groupId, text: this.text, title: this.title})
                 .then(window.location.reload()),
@@ -268,8 +296,14 @@
                     console.error(error)
                 }
             },
-            createComment() {
+            createComment(groupId, anncId) {
               console.log(this.commentText)
+              console.log(groupId, anncId)
+              axios.post(`/dev/comments`, {text: this.commentText, userId: 1, groupId: groupId, anncId: anncId, parentId: 0, likes: 0})
+                .then(response => this.newComment = '', window.location.reload(), (console.log(response)),
+                (error) => {
+                    console.log(error);
+                });
             },
             updateGroup() {
                 this.form.groupId = parseInt(this.groupId);
@@ -278,6 +312,14 @@
                 (error) => {
                   console.error(error)
                 }
+            },
+            addLike(likes, id){
+                console.log(likes)
+                axios.post(`/dev/likes`, {likes: likes + 1, id: id})
+                .then(response => (console.log(response), window.location.reload()),
+                (error) => {
+                    console.log(error);
+                });
             }
         }
     })
