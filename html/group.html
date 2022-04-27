@@ -45,7 +45,9 @@
       <b-card-text>
         Characters
         <b-list-group v-if="characters.length">
-          <b-list-group-item :href="'/dev/character-page?charId='+ character.char_id" v-for="(character, index) in characters">{{character.char_name}}</b-list-group-item>
+          <b-list-group-item :href="'/dev/character-page?charId='+ character.char_id" v-for="(character, index) in characters">{{character.char_name}}
+            <b-button @click="card = true">Info</b-button>
+          </b-list-group-item>
         </b-list-group> 
         <p v-if="!characters.length" style="color: black;">No Characters In Group</p>
       </b-card-text>
