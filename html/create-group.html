@@ -130,10 +130,11 @@
             createGroup(){
                 console.log(this.form)
                 axios.post(`/dev/createGroup`, this.form)
-                .then(window.location.href = '/dev/search',
+                .then(response => console.log(response),
                 (error) => {
                     console.error(error);
                 });
+            window.location.href = '/dev/search'
             }
         }
     })

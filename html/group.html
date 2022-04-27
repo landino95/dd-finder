@@ -38,7 +38,6 @@
     <div class="text-center" v-if="loading">
         <b-spinner></b-spinner>
     </div>
-
     <div>
       <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
       <b-button v-if="!edit" size="sm" variant="outline-danger" @click="edit=true" class="m-2">Edit</b-button>
