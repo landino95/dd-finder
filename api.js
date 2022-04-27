@@ -2,9 +2,26 @@ const dbQuery = require('./js/db');
 const getUser = async function (req, res) {
     const id = req.params.id;
 
-    const sql = `SELECT * FROM users WHERE user_id = ${id};`
+    const userSql = `SELECT * FROM users WHERE user_id = ${id};`
+    const charSql = `SELECT * FROM characters WHERE user_id = ${id};`
+    const groupSql = `select characters.char_name, characters.char_id, characters.group_id, users.user_name, users.email, player_groups.group_name
+                from characters
+            inner join player_groups on player_groups.group_id = characters.group_id
+            inner join users on users.user_id = characters.user_id where users.user_id=${id}`;
     try {
-        const result = await dbQuery.dbQuery(sql);
+        const user = await dbQuery.dbQuery(userSql);
+        const characters = await dbQuery.dbQuery(charSql);
+        const groups = await dbQuery.dbQuery(groupSql);
+        dbQuery.end(function(err) {
+          if(err) {
+            return console.error(err)
+          }
+          console.log('Connenction Ended')
+        })
+        const result = user[0];
+        result.characters = characters; 
+        result.groups = groups;
+        console.log(result)
         return res.send(result);
     } catch (error) {
        console.error(error);
@@ -65,7 +82,7 @@ const getGroups = async function (req, res) {
 const getGroupChars = async function(req, res) {
     const id = req.params.id;
     console.log(id)
-    const sql = `SELECT char_id, char_name FROM characters WHERE group_id = ${id}`;
+    const sql = `SELECT * FROM characters WHERE group_id = ${id}`;
     try {
         const result = await dbQuery.dbQuery(sql);
         console.log(result)

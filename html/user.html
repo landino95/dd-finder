@@ -15,7 +15,7 @@
 <body>
   <div id="app">
     <b-navbar toggleable="lg" type="dark" variant="danger">
-      <b-navbar-brand href="/dev/home">D&D Group Finder</b-navbar-brand>
+      <b-navbar-brand href="/dev/home" class="mx-3">D&D Group Finder</b-navbar-brand>
       
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       
@@ -39,19 +39,24 @@
     <div class="text-center" v-if="loading">
       <b-spinner></b-spinner>
     </div>
-    <b-card text-variant="danger" :title="userInfo.user_name" :sub-title="userInfo.email">
-      <b-card-text>
-        Characters
-        <b-list-group>
-          <b-list-group-item :href="'/dev/character-page?charId='+ character.char_id" v-for="(character, index) in characters">{{character.char_name}}</b-list-group-item>
-        </b-list-group> 
-      </b-card-text>
-      <b-card-text>
-        Groups
-        <b-list-group>
-          <b-list-group-item :href="'/dev/group-page?groupId='+ group.group_id" v-for="group in groups">{{group.group_name}}</b-list-group-item>
-        </b-list-group> 
-      </b-card-text>
+    <b-card text-variant="danger" :title="user.user_name" :sub-title="user.email" v-if="!loading">
+      <b-card-group columns>
+        <h3>Characters</h3>
+        <b-card text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in user.characters" bg-variant="dark" style="display: inline-block;" class="m-3">
+          <b-card-text>
+            <pre v-if="group.char_id == character.char_id" v-for="group in user.groups">Group: <a :href="'/dev/group-page?groupId='+ group.group_id">{{group.group_name}}</a></pre>
+            <pre>Race: {{character.race}}</pre>
+            <pre>Strength: {{character.strength}}</pre>
+            <pre>Dexterity: {{character.dexterity}}</pre>
+            <pre>Constitution: {{character.constitution}}</pre>
+            <pre>Intelligence: {{character.intelligence}}</pre>
+            <pre>Wisdom: {{character.wisdom}}</pre>
+            <pre>Charisma: {{character.charisma}}</pre>
+            <p v-if="!user.characters.length" style="color: black;">No Characters In Group</p>
+            <b-button :href="'/dev/character-page?charId='+ character.char_id">Edit Character</b-button>
+            </b-card-text>
+          </b-card>
+        </b-card-group>
     </b-card>
   </div>
 </body>
@@ -73,8 +78,8 @@
         },
         mounted: function() {
           this.getUser();
-          this.getUserChars();
-          this.getUserGroups();
+          // this.getUserChars();
+          // this.getUserGroups();
           this.loading = true;
         },
         methods: {
@@ -86,7 +91,7 @@
             },
             getUser() {
              axios.get(`/dev/user/${this.userId}`)
-                .then(response => (this.user = response.data, this.userInfo = response.data[0], this.loading = false),
+                .then(response => (this.user = response.data, this.loading = false),
                 (error) => {
                     console.log(error);
                 }); 
