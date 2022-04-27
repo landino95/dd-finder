@@ -10,21 +10,8 @@ provider:
   runtime: nodejs14.x
   region: us-east-1
   stage: dev
-  environment:
-    CHAR_TABLE: ${self:custom.charactersTable}
-    USER_TABLE: ${self:custom.usersTable}
-    GROUP_TABLE: ${self:custom.groupsTable}
-    ANNC_TABLE: ${self:custom.announcementsTable}
-    COMM_TABLE: ${self:custom.commentsTable}
-    SECRET: ${self:custom.secret}
-
 
 custom:
-  usersTable: users
-  charactersTable: characters
-  groupsTable: groups
-  announcementsTable: announcements
-  commentsTable: comments
   region: us-east-1
   secret: c902c29b38433efb12aa43e05606b9489c3e60cff4498e4dcf240267b66651c3
 

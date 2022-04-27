@@ -63,7 +63,6 @@
 </html>
 
 <script type="module">
-    // import Banner from './components/Banner.vue';
     new Vue({
         el: "#app",
         data() {
@@ -78,17 +77,9 @@
         },
         mounted: function() {
           this.getUser();
-          // this.getUserChars();
-          // this.getUserGroups();
           this.loading = true;
         },
         methods: {
-            joinGroup() {
-                console.log('join group');
-            },
-            createChar() {
-                console.log('create char');
-            },
             getUser() {
              axios.get(`/dev/user/${this.userId}`)
                 .then(response => (this.user = response.data, this.loading = false),
@@ -96,20 +87,6 @@
                     console.log(error);
                 }); 
             },
-            getUserChars() {
-              axios.get(`/dev/userChars/${this.userId}`)
-              .then(response => (this.characters = response.data, this.loading = false),
-              (error) => {
-                  console.log(error);
-              });
-            },
-            getUserGroups() {
-              axios.get(`/dev/userGroups/${this.userId}`)
-              .then(response => (this.groups = response.data, this.loading = false),
-              (error) => {
-                  console.log(error);
-              });
-            }
         }
     })
 </script>

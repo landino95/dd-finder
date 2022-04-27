@@ -71,7 +71,7 @@ app.get('/home', (req, res) => {
 app.post('/auth', api.authorize);
 
 app.get('/groups', api.getAllGroups);
-app.get('/groups/:id', api.getGroups);
+app.get('/groups/:id', api.getGroup);
 app.post('/joinGroup', api.joinGroup);
 app.get('/groupCharacters/:id', api.getGroupChars);
 app.get('/groups/posts/:id', api.getGroupPosts);

@@ -1,4 +1,12 @@
 const dbQuery = require('./js/db');
+function end() {
+    dbQuery.end(function(err) {
+        if(err) {
+            return console.error(err)
+        }
+        console.log('Connenction Ended')
+    })
+}
 const getUser = async function (req, res) {
     const id = req.params.id;
 
@@ -12,12 +20,7 @@ const getUser = async function (req, res) {
         const user = await dbQuery.dbQuery(userSql);
         const characters = await dbQuery.dbQuery(charSql);
         const groups = await dbQuery.dbQuery(groupSql);
-        dbQuery.end(function(err) {
-          if(err) {
-            return console.error(err)
-          }
-          console.log('Connenction Ended')
-        })
+        end();
         const result = user[0];
         result.characters = characters; 
         result.groups = groups;
@@ -64,15 +67,28 @@ const getChar = async function (req, res) {
        console.error(error);
     }
 };
-const getGroups = async function (req, res) {
-    const id = req.params.id;
-    console.log(id)
-    // const sql = `SELECT player_groups.group_name, player_groups.description, player_groups.genre, player_groups.level, player_groups.dm, player_groups.play_type, player_groups.style, player_groups.created_on, characters.char_name, characters.char_id
-// FROM player_groups
-// INNER JOIN characters ON player_groups.group_id=characters.group_id where player_groups.group_id=${id};`;
-    const sql = `SELECT * FROM player_groups where group_id = ${id};`
+const getGroup = async function (req, res) {
+    const groupId = req.params.id;
+    const userId = 1;
+    const postId =  26;//req.params.id;
+    const groupSql = `SELECT * FROM player_groups where group_id = ${groupId};`;
+    const charSql = `SELECT * FROM characters WHERE group_id = ${groupId}`;
+    const userSql = `SELECT * FROM characters WHERE user_id = ${userId};`;
+    const commentsSql = `select comments.comment_id, comments.title, comments.likes, comments.text, comments.parent_id, comments.group_id, comments.user_id, users.user_name, player_groups.group_id
+                from comments
+                inner join users on users.user_id = comments.user_id 
+                inner join player_groups on player_groups.group_id = comments.group_id where comments.group_id = ${groupId} `;
     try {
-        const result = await dbQuery.dbQuery(sql);
+        const groups = await dbQuery.dbQuery(groupSql);
+        const characters = await dbQuery.dbQuery(charSql);
+        const user = await dbQuery.dbQuery(userSql);
+        const comments = await dbQuery.dbQuery(commentsSql);
+        end();
+        let result = groups[0];
+        result.characters = characters;
+        result.user = user;
+        result.comments = comments;
+        console.log(result)
         return res.send(result);
     } catch (error) {
        console.error(error);
@@ -149,7 +165,7 @@ inner join users on users.user_id = comments.user_id where posts.annc_id=${id};`
 }
 const writeComments = async function(req, res) {
     const data = req.body;
-    const sql = `insert into comments (text, user_id, group_id, annc_id, parent_comm, likes) values ("${data.text}", ${data.userId}, ${data.groupId}, ${data.anncId}, ${data.parentId}, ${data.likes});`;
+    const sql = `insert into comments (title, text, user_id, group_id, parent_id, likes) values ("${data.title}","${data.text}", ${data.userId}, ${data.groupId}, ${data.parentId}, ${data.likes});`;
     try {
         const result = await dbQuery.dbQuery(sql);
         return res.send(result);
@@ -187,6 +203,7 @@ const getAllGroups = async function(req, res) {
     try {
         const result = await dbQuery.dbQuery(sql);
         console.log(result)
+        end();
         return res.send(result);
     } catch (error) {
        console.error(error);
@@ -207,11 +224,10 @@ const createGroup = async function(req, res) {
 const updateGroup = async function(req, res) {
     const data = req.body;
     const sql = `UPDATE player_groups
-                SET description="${data.description}", group_name="${data.groupName}",
+                SET description="${data.description}", group_name="${data.group_name}",
                 genre="${data.genre}", level="${data.level}", dm="${data.dm}",
                 play_type="${data.playType}", style="${data.playStyle}"
                 WHERE group_id = ${data.groupId};`
-    console.log(sql)
     try {
         const result = await dbQuery.dbQuery(sql);
         console.log(result)
@@ -277,7 +293,7 @@ const authorize = async function(req, res) {
 module.exports = {
    getChar,
    getUser,
-   getGroups,
+   getGroup,
    getGroupChars,
    getGroupPosts,
    getPost,

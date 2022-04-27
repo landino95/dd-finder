@@ -40,21 +40,21 @@
     </div>
     <div>
       <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
-      <b-button v-if="!edit" size="sm" variant="outline-danger" @click="edit=true" class="m-2">Edit</b-button>
-      <b-card text-variant="danger" :title="groupInfo.group_name" :sub-title="groupInfo.description" v-if="!edit">
+      <b-button v-if="!edit && !loading" size="sm" variant="outline-danger" @click="edit=true" class="m-2" style="align-content: flex-end;">Edit</b-button>
+      <b-card text-variant="danger" :title="group.group_name" :sub-title="group.description" v-if="!edit">
         <div class="m-3">
-          <b-button @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
+          <b-button v-if="!loading" @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
           <div v-if="selected" class="my-2">
             <b-button @click="selected = false">Cancel</b-button>
             <label for="select">Choose a character:</label>
             <select v-model="select" id="select" @change="joinGroup($event)">
-                <option v-for="character in userChars" :value="character.char_id" >{{character.char_name}}</option>
+                <option v-for="(character, index) in group.characters" :value="character.char_id" >{{character.char_name}}</option>
             </select>
           </div>
         </div>
-        <h3>Characters</h3>
+        <h4 v-if="!loading" class="mx-3">Characters</h4>
         <b-card-group columns>
-          <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in characters" bg-variant="dark" style="display: inline-block;" class="m-3">
+          <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in group.characters" bg-variant="dark" style="display: inline-block;" class="m-3">
             <b-card-text>
               <pre>Race: {{character.race}}</pre>
               <pre>Strength: {{character.strength}}</pre>
@@ -63,44 +63,50 @@
               <pre>Intelligence: {{character.intelligence}}</pre>
               <pre>Wisdom: {{character.wisdom}}</pre>
               <pre>Charisma: {{character.charisma}}</pre>
-              <p v-if="!characters.length" style="color: black;">No Characters In Group</p>
+              <p v-if="!group.characters.length" style="color: black;">No Characters In Group</p>
             </b-card-text>
           </b-card>
         </b-card-group>
-        <h3>Posts</h3>
+        <h4 v-if="!loading" class="mx-3">Posts</h4>
         <b-card-group deck>
-          <b-button v-if="!makePost" @click="makePost = true" variant="danger" class="m-3">
+          <b-button v-if="!makePost && !loading" @click="makePost = true" variant="danger" class="m-3">
               Add Post 
           </b-button>
           <b-container fluid v-if="makePost" class="mt-2">
               <b-row class="mt-2">
                 <b-col sm="10">
                   <b-form-textarea
+                    id="titlearea"
+                    placeholder="Enter title..."
+                    v-model="title"
+                  ></b-form-textarea>
+                </b-col><b-col sm="10">
+                  <b-form-textarea
                     id="textarea"
-                    placeholder="Enter comment..."
+                    placeholder="Enter content..."
                     v-model="text"
                   ></b-form-textarea>
                 </b-col>
               </b-row>
               <div class="mt-2">
               <b-button @click="makePost = false">Cancel</b-button>
-              <b-button @click="createPost()" variant="danger">Submit</b-button></div>
+              <b-button @click="createComment(group.group_id, 0)" variant="danger">Submit</b-button></div>
           </b-container>
-          <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="post.title" :sub-title="post.text" v-for="(post, index) in posts" bg-variant="dark" class="m-3">
+          <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="comment.title" :sub-title="comment.text" v-for="(comment, index) in group.comments" bg-variant="dark" class="m-3">
             <b-card-text>
               <b-button v-if="!makeComment" @click="makeComment = true" variant="outline-danger" class="mt-2">
                 Comment 
               </b-button>
-              <b-button @click="getComments(post.annc_id)" variant="outline-danger" class="mt-2">
+              <b-button @click="getComments(post.comment_id)" variant="outline-danger" class="mt-2">
                 Show Comments 
               </b-button>
               <b-button variant="outline-danger" class="mt-2">
                 Like
               </b-button>
-              <b-list-group v-if="posts.length">
-                <b-list-group-item v-if="post.annc_id == comment.annc_id" v-for="comment in comments" class="mt-2">{{comment.text}}</b-list-group-item>
+              <b-list-group v-if="group.comments.length">
+                <b-list-group-item v-if="comment.comm_id" v-for="comment in group.comments" class="mt-2">{{comment.text}}</b-list-group-item>
               </b-list-group> 
-              <p style="color: black;" v-if="!posts.length">No Posts Yet</p>
+              <p style="color: black;" v-if="!group.comments.length">No Posts Yet</p>
             </b-card-text>
             <b-container fluid v-if="makeComment" class="mt-2">
               <b-row class="mt-2">
@@ -114,7 +120,7 @@
               </b-row>
               <div class="mt-2">
               <b-button @click="makeComment = false">Cancel</b-button>
-              <b-button @click="createComment(post.annc_id, post.group_id)" variant="danger">Submit</b-button></div>
+              <b-button @click="createComment(comment.group_id, comment.comment_id)" variant="danger">Submit</b-button></div>
             </b-container>
           </b-card>
         </b-card-group>
@@ -199,14 +205,9 @@
         data() {
           return {
             group: [],
-            groupInfo: '',
-            characters: [],
-            posts: [],
             groupId: location.href.split('?')[1].split('&')[0].split('=')[1],
-            charId: 7,
+            // charId: 7,
             userId: 1,
-            user: '',
-            userChars: [],
             select: null,
             selected: false,
             loading: false,
@@ -237,33 +238,16 @@
           }
         },
         mounted: function() {
-          this.getGroupChars();
           this.getGroup();
-          this.getPosts();
-          this.getUser();
           this.loading = true;
         },
         methods: {
-            getUser(){
-                axios.get(`/dev/userChars/${this.userId}`)
-                .then(response => (this.userChars = response.data, this.loading = false),
-                (error) => {
-                    console.log(error);
-                });
-            },
             getGroup() {
                 axios.get(`/dev/groups/${this.groupId}`)
-                .then(response => (console.log(response.data), this.group = response.data, this.groupInfo = response.data[0], this.form = response.data[0], this.loading = false),
+                .then(response => (this.group = response.data, this.form = response.data, this.loading = false),
                 (error) => {
                     console.error(error);
                 }); 
-            },
-            getGroupChars() {
-                axios.get(`/dev/groupCharacters/${this.groupId}`)
-                .then(response => (this.characters = response.data, this.loading = false),
-                (error) => {
-                    console.error(error);
-                });
             },
             joinGroup(event) {
                 axios.post(`/dev/joinGroup`, {groupId: this.groupId, charId: event.target.value})
@@ -273,32 +257,10 @@
                 }
                 window.location.reload();
             },
-            getPosts() {
-                axios.get(`/dev/groups/posts/${this.groupId}`)
-                .then(response => (this.posts = response.data, this.loading = false),
-                (error) => {
-                    console.error(error);
-                });
-            },
-            getComments(postId) {
-                console.log(postId)
-                axios.get(`/dev/comments/${postId}`)
-                    .then(response => (this.comments = response.data, console.log(response)),
-                    (error) => {
-                        console.log(error);
-                    });
-            },
-            createPost() {
-                axios.post(`/dev/createPost`, {groupId: this.groupId, text: this.text, title: this.title})
-                .then(window.location.reload()),
-                (error) => {
-                    console.error(error)
-                }
-            },
-            createComment(groupId, anncId) {
-              console.log(this.commentText)
-              console.log(groupId, anncId)
-              axios.post(`/dev/comments`, {text: this.commentText, userId: 1, groupId: groupId, anncId: anncId, parentId: 0, likes: 0})
+            createComment(groupId, commId) {
+              console.log(this.text)
+              console.log(groupId, commId)
+              axios.post(`/dev/comments`, {title: this.title, text: this.text, userId: 1, groupId: groupId, commId: commId, parentId: 0, likes: 0})
                 .then(response => this.newComment = '', window.location.reload(), (console.log(response)),
                 (error) => {
                     console.log(error);

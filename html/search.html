@@ -109,6 +109,9 @@
             </b-row>
         
             <!-- Main table element -->
+            <div class="text-center" v-if="loading">
+              <b-spinner></b-spinner>
+            </div>
             <b-table
               :items="items"
               :fields="fields"
@@ -131,7 +134,7 @@
         
               <template #cell(actions)="row">
                 <b-button size="sm" @click="row.toggleDetails">
-                  {{ row.detailsShowing ? 'Hide' : 'Show' }} Info 
+                  {{ row.detailsShowing ? 'Less' : 'More' }} Info 
                 </b-button>
                 <b-button variant="danger" :href="'group-page?groupId=' + row.item.group_id">Group Page</b-button>
               </template>
@@ -179,6 +182,7 @@
                 sortDirection: 'asc',
                 filter: null,
                 filterOn: [],
+                loading: true
               }
         },
         computed: {
@@ -198,7 +202,7 @@
         methods: {
             getGroups() {
                 axios.get(`/dev/groups`)
-                .then(response => (this.items = response.data, console.log(response.data)),
+                .then(response => (this.items = response.data, this.loading = false, console.log(response.data)),
                 (error) => {
                     console.error(error);
                 }); 
