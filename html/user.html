@@ -5,29 +5,59 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&D Group Finder</title>
-    <!-- <script src="https://unpkg.com/vue@next"></script> -->
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 
 </head>
 <body>
   <div id="app">
-  <!-- <Banner/> -->
-  <hr>
-  <h2>User Name</h2>
-  <h4>{{user[0].user_name}}</h4>
-  <h2>Email</h2>
-  <h4>{{user[0].email}}</h4>
-  <h2>Groups</h2>
-  <ul>
-    <!-- <li v-for="group in user" v-text="group.group_name"></li> -->
-      <a :href="'/dev/group-page?groupId='+ group.group_id" v-for="group in user"><li>{{group.group_name}}</li></a>
-    </ul>
-  <h2>Characters</h2>
-  <ul>
-  <!-- <li v-for="character in characters" v-text="character.name"></li> -->
-  <a :href="'/dev/character-page?characterId='+ character.char_id" v-for="character in user"><li>{{character.char_name}}</li></a>
-  </ul>
+    <b-navbar toggleable="lg" type="dark" variant="danger">
+      <b-navbar-brand href="/dev/home" class="mx-3">D&D Group Finder</b-navbar-brand>
+      
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+      
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav>
+          <b-nav-item href="/dev/search">Groups</b-nav-item>
+          <b-nav-item href="#">Rules</b-nav-item>
+        </b-navbar-nav>
+        
+          <b-navbar-nav class="ml-auto">
+            <b-nav-item-dropdown right>
+                <template #button-content>
+                  <em>User</em>
+                </template>
+                  <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
+                  <b-dropdown-item href="#">Logout</b-dropdown-item>
+            </b-nav-item-dropdown>
+          </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+    <div class="text-center" v-if="loading">
+      <b-spinner></b-spinner>
+    </div>
+    <b-card text-variant="danger" :title="user.user_name" :sub-title="user.email" v-if="!loading">
+      <b-card-group columns>
+        <h3>Characters</h3>
+        <b-card text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in user.characters" bg-variant="dark" style="display: inline-block;" class="m-3">
+          <b-card-text>
+            <pre v-if="group.char_id == character.char_id" v-for="group in user.groups">Group: <a :href="'/dev/group-page?groupId='+ group.group_id">{{group.group_name}}</a></pre>
+            <pre>Race: {{character.race}}</pre>
+            <pre>Strength: {{character.strength}}</pre>
+            <pre>Dexterity: {{character.dexterity}}</pre>
+            <pre>Constitution: {{character.constitution}}</pre>
+            <pre>Intelligence: {{character.intelligence}}</pre>
+            <pre>Wisdom: {{character.wisdom}}</pre>
+            <pre>Charisma: {{character.charisma}}</pre>
+            <p v-if="!user.characters.length" style="color: black;">No Characters In Group</p>
+            <b-button :href="'/dev/character-page?charId='+ character.char_id">Edit Character</b-button>
+            </b-card-text>
+          </b-card>
+        </b-card-group>
+    </b-card>
   </div>
 </body>
 </html>
@@ -41,16 +71,16 @@
             characters: [],
             userId: location.href.split('?')[1].split('&')[0].split('=')[1],
             groups: [],
-            // groupId: location.href.split('?')[1].split('&')[1].split('=')[1], 
             user: [],
-            userInfo: ''
-            // userId: location.href.split('?')[1].split('&')[2].split('=')[1]
+            userInfo: '',
+            loading: false
           }
         },
         mounted: function() {
-          // this.getChars();
           this.getUser();
-          // this.getGroups();
+          // this.getUserChars();
+          // this.getUserGroups();
+          this.loading = true;
         },
         methods: {
             joinGroup() {
@@ -61,25 +91,25 @@
             },
             getUser() {
              axios.get(`/dev/user/${this.userId}`)
-                .then(response => (this.user = response.data, this.userInfo = response.data[0], console.log(response)),
+                .then(response => (this.user = response.data, this.loading = false),
                 (error) => {
                     console.log(error);
                 }); 
             },
-            // getChars() {
-            //  axios.get(`/dev/character/${this.charId}`)
-            //     .then(response => (this.characters = response.data, console.log(response.data[0])),
-            //     (error) => {
-            //         console.log(error);
-            //     }); 
-            // },
-            // getGroups() {
-            //   axios.get(`/dev/groups/${this.groupId}`)
-            //   .then(response => (this.groups = response.data, console.log(response.data)),
-            //   (error) => {
-            //     console.log(error);
-            //   });
-            // }
+            getUserChars() {
+              axios.get(`/dev/userChars/${this.userId}`)
+              .then(response => (this.characters = response.data, this.loading = false),
+              (error) => {
+                  console.log(error);
+              });
+            },
+            getUserGroups() {
+              axios.get(`/dev/userGroups/${this.userId}`)
+              .then(response => (this.groups = response.data, this.loading = false),
+              (error) => {
+                  console.log(error);
+              });
+            }
         }
     })
 </script>

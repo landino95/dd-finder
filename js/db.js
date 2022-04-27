@@ -1,4 +1,4 @@
-let mysql = require('mysql');
+let mysql = require('mysql2');
 const db = mysql.createConnection({
     host: 'dd-finder.cncoqjx0rdhm.us-east-1.rds.amazonaws.com',
     user: 'admin',
@@ -14,25 +14,28 @@ db.connect(function(err) {
   console.log('Connected to the MySQL server.');
 });
 
-const dbQuery = function dbQuery(sql, callback) {
-    db.query(sql, function (err, result, fields) {
-        if(err) {
-            db.destroy();
-            throw err;
-        } else {
-            console.log(result);
-            callback(null, {
-            statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(result)
-            })
-        }
+const dbQuery = async function dbQuery(sql) {
+    const results = await db.promise().execute(sql)
+    // db.end()
+    // db.end(function(err) {
+    //   if(err) {
+    //     return console.error(err)
+    //   }
+    //   console.log('Connenction Ended')
+    // })
+    return results[0];
+}
+const end = async function end() {
+  db.end(function(err) {
+      if(err) {
+        return console.error(err)
+      }
+      console.log('Connenction Ended')
     })
 }
 
+
 module.exports = {
-    dbQuery
+    dbQuery,
+    end
 }

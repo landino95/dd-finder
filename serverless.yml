@@ -16,6 +16,8 @@ provider:
     GROUP_TABLE: ${self:custom.groupsTable}
     ANNC_TABLE: ${self:custom.announcementsTable}
     COMM_TABLE: ${self:custom.commentsTable}
+    SECRET: ${self:custom.secret}
+
 
 custom:
   usersTable: users
@@ -24,77 +26,14 @@ custom:
   announcementsTable: announcements
   commentsTable: comments
   region: us-east-1
+  secret: c902c29b38433efb12aa43e05606b9489c3e60cff4498e4dcf240267b66651c3
 
 plugins:
   - serverless-iam-roles-per-function
   - serverless-aws-static-file-handler
   - serverless-offline
-  - serverless-express
 
 functions:
-  # getChar:
-  #   handler: api.getChar
-  #   name: getChar
-  #   events:
-  #     - http: 
-  #         path: character/{id}
-  #         method: GET
-  # getUser:
-  #   handler: api.getUser
-  #   name: getUser
-  #   events:
-  #     - http:
-  #         path: user/{id}
-  #         method: GET
-  # getGroups:
-  #   handler: api.getGroups
-  #   name: getGroups
-  #   events:
-  #     - http:
-  #         path: groups/{id}
-  #         method: GET
-  # getGroupChars:
-  #   handler: api.getGroupChars
-  #   name: getGroupChars
-  #   events:
-  #     - http:
-  #         path: group/{id}/chars
-  #         method: GET
-  # getGroupPosts:
-  #     handler: api.getGroupPosts
-  #     name: getGroupPosts
-  #     events:
-  #       - http:
-  #           path: group/{id}/posts
-  #           method: GET
-  # getPost:
-  #     handler: api.getPost
-  #     name: getPost
-  #     events:
-  #       - http:
-  #           path: post/{id}
-  #           method: GET
-  # getComments:
-  #     handler: api.getComments
-  #     name: getComments
-  #     events:
-  #       - http:
-  #           path: comments/{id}
-  #           method: GET
-  # writeComments:
-  #     handler: api.writeComments
-  #     name: writeComments
-  #     events:
-  #       - http:
-  #           path: /comments
-  #           method: ANY
-  # like:
-  #     handler: api.likes
-  #     name: likes
-  #     events:
-  #       - http:
-  #           path: /likes
-  #           method: ANY 
   # user:
   #   handler: user.html
   #   events:
@@ -119,9 +58,26 @@ functions:
   #     - http:
   #         path: /posts-page
   #         method: get
+  # search:
+  #   handler: search.html
+  #   events:
+  #     - http:
+  #         path: /search
+  #         method: get
+  # createGroup:
+  #   handler: createGroup.html
+  #   events:
+  #     - http:
+  #         path: /create-group
+  #         method: get 
+  # createChar:
+  #   handler: createChar.html
+  #   events:
+  #     - http:
+  #         path: /create-char
+  #         method: get
   app:
-    handler: lambda.handler
+    handler: lambda.express
     events:
-      - http: 
-          method: ANY
-          path: /{proxy*} 
+      - http: ANY
+      - http: 'ANY {proxy+}'

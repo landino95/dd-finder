@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+    <title>Group Search</title>
+</head>
+<body style="background-color: whitesmoke;">
+    <div id="app">
+       <b-navbar toggleable="lg" type="dark" variant="danger">
+         <b-navbar-brand href="/dev/home" class="mx-3">D&D Group Finder</b-navbar-brand>
+         
+         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+         
+         <b-collapse id="nav-collapse" is-nav>
+           <b-navbar-nav>
+             <b-nav-item href="/dev/search">Groups</b-nav-item>
+             <b-nav-item href="#">Rules</b-nav-item>
+           </b-navbar-nav>
+           
+             <b-navbar-nav class="ml-auto">
+               <b-nav-item-dropdown right>
+                   <template #button-content>
+                     <em>User</em>
+                   </template>
+                     <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
+                     <b-dropdown-item href="#">Logout</b-dropdown-item>
+               </b-nav-item-dropdown>
+             </b-navbar-nav>
+         </b-collapse>
+        </b-navbar>
+        <b-container fluid>
+         <h2 class="mt-2">Group Finder</h2>
+       <!-- User Interface controls -->
+            <b-row>
+              <b-col lg="6" class="my-1">
+                <b-form-group
+                  label="Filter"
+                  label-for="filter-input"
+                  label-cols-sm="3"
+                  label-align-sm="right"
+                  label-size="sm"
+                  class="mb-0"
+                >
+                  <b-input-group size="sm">
+                    <b-form-input
+                      id="filter-input"
+                      v-model="filter"
+                      type="search"
+                      placeholder="Type to Search"
+                    ></b-form-input>
+        
+                    <b-input-group-append>
+                      <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+                    </b-input-group-append>
+                  </b-input-group>
+                </b-form-group>
+              </b-col>
+        
+              <b-col lg="6" class="my-1">
+                <b-form-group
+                  v-model="sortDirection"
+                  label="Filter On"
+                  description="Leave all unchecked to filter on all data"
+                  label-cols-sm="3"
+                  label-align-sm="right"
+                  label-size="sm"
+                  class="mb-0"
+                  v-slot="{ ariaDescribedby }"
+                >
+                  <b-form-checkbox-group
+                    v-model="filterOn"
+                    :aria-describedby="ariaDescribedby"
+                    class="mt-1"
+                  >
+                    <b-form-checkbox value="group_name">Group Name</b-form-checkbox>
+                    <b-form-checkbox value="genre">Genre</b-form-checkbox>
+                  </b-form-checkbox-group>
+                </b-form-group>
+              </b-col>
+        
+              <b-col sm="5" md="6" class="my-1">
+                <b-form-group
+                  label="Per page"
+                  label-for="per-page-select"
+                  label-cols-sm="6"
+                  label-cols-md="4"
+                  label-cols-lg="3"
+                  label-align-sm="right"
+                  label-size="sm"
+                  class="mb-0"
+                >
+                  <b-form-select
+                    id="per-page-select"
+                    v-model="perPage"
+                    :options="pageOptions"
+                    size="sm"
+                  ></b-form-select>
+                </b-form-group>
+              </b-col>
+        
+              
+            </b-row>
+        
+            <!-- Main table element -->
+            <b-table
+              :items="items"
+              :fields="fields"
+              :current-page="currentPage"
+              :per-page="perPage"
+              :filter="filter"
+              :filter-included-fields="filterOn"
+              :sort-by.sync="sortBy"
+              :sort-desc.sync="sortDesc"
+              :sort-direction="sortDirection"
+              stacked="md"
+              show-empty
+              small
+              @filtered="onFiltered"
+            >
+              <template #cell(name)="row">
+                {{ row.value.first }} 
+                {{ row.value.last }}
+              </template>
+        
+              <template #cell(actions)="row">
+                <b-button size="sm" @click="row.toggleDetails">
+                  {{ row.detailsShowing ? 'Hide' : 'Show' }} Info 
+                </b-button>
+                <b-button variant="danger" :href="'group-page?groupId=' + row.item.group_id">Group Page</b-button>
+              </template>
+        
+              <template #row-details="row">
+                <b-card>
+                  <strong>{{row.item.title}}</strong>
+                  Description:<pre>{{row.item.description}}</pre>
+                  Dungeon Master:<pre>{{row.item.user_name }}</pre>
+                </b-card>
+              </template>
+            </b-table>
+        
+          </b-container>
+          <b-col sm="7" md="6" class="my-1">
+                <b-pagination
+                  v-model="currentPage"
+                  :total-rows="totalRows"
+                  :per-page="perPage"
+                  align="fill"
+                  size="sm"
+                ></b-pagination>
+            </b-col>
+        </div> 
+    </body>
+</html>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                items: [],
+                fields: [{ key: 'group_name', label: 'Group name', sortable: true, sortDirection: 'desc' },
+                { key: 'genre', label: 'Genre', sortable: true },
+                { key: 'play_type', label: 'Play Type', sortable: true },
+                { key: 'style', label: 'Play Style', sortable: true },
+                { key: 'level', label: 'Level', sortable: true },
+                { key: 'actions', label: 'Actions' }],
+                totalRows: 1,
+                currentPage: 1,
+                perPage: 5,
+                pageOptions: [5, 10, 15, { value: 100, text: "Even More" }],
+                sortBy: '',
+                sortDesc: false,
+                sortDirection: 'asc',
+                filter: null,
+                filterOn: [],
+              }
+        },
+        computed: {
+            sortOptions() {
+                // Create an options list from our fields
+                return this.fields
+                .filter(f => f.sortable)
+                .map(f => {
+                    return { text: f.label, value: f.key }
+                })
+            }
+        },
+        mounted: function() {
+            this.totalRows = this.items.length;
+            this.getGroups();
+        },
+        methods: {
+            getGroups() {
+                axios.get(`/dev/groups`)
+                .then(response => (this.items = response.data, console.log(response.data)),
+                (error) => {
+                    console.error(error);
+                }); 
+            },
+            resetInfoModal() {
+                this.infoModal.title = ''
+                this.infoModal.content = ''
+            },
+            onFiltered(filteredItems) {
+                // Trigger pagination to update the number of buttons/pages due to filtering
+                this.totalRows = filteredItems.length
+                this.currentPage = 1
+            }
+        }
+    })
+</script>

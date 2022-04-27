@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,minimum-scale=1">
+		<title>Login</title>
+        <!-- the form awesome library is used to add icons to our form -->
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+        <!-- include the stylesheet file -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<h1>Login</h1>
+			<form @submit="login">
+				<label for="username">
+					<!-- font awesome icon -->
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="username" placeholder="Username" v-model="username" required>
+				<label for="password">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="password" name="password" placeholder="Password" v-model="password" required>
+				<input type="submit" value="Login">
+			</form>
+		</div>
+	</body>
+</html>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+          return {
+              username: '',
+              password: '',
+              id: '',
+          }
+        },
+        mounted: function() {
+        },
+        methods: {
+            login(){
+                data = {
+                    username: this.username,
+                    password: this.password,
+                    id: this.id,
+                }
+                axios.post(`/dev/auth`, data)
+                .then(response => console.log(response),
+                (error) => {
+                    console.error(error);
+                });
+            }
+        }
+    })
+</script>

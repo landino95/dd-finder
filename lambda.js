@@ -1,9 +1,7 @@
-const handler = require('serverless-express/handler');
-
+const awsServerlessExpress = require('aws-serverless-express');
 const app = require('./index');
-// const server = awsServerlessExpress.createServer(app);
+const server = awsServerlessExpress.createServer(app);
 
-// exports.express = (event, context) => {
-    // awsServerlessExpress.proxy(server, event, context);
-// }
-module.exports.handler = handler(app)
+exports.express = (event, context) => {
+    return awsServerlessExpress.proxy(server, event, context);
+}

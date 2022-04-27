@@ -5,26 +5,187 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Character</title>
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 </head>
 <body>
     <div id="app">
-        <h2>User</h2>
-        <a :href="'/dev/user-page?userId='+ character.user_id">{{character.user_name}}</a>
-        <h2>Group</h2>
-        <a :href="'/dev/group-page?groupId='+ character.group_id">{{character.group_name}}</a>
-        <h2>Character</h2>
-        <p>{{character.char_name}}</p>
-        <h2>Character Stats</h2>
-        <span>Race</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.race}}</p>
-        <span>Class</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.class}}</p>
-        <span>Strength</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.strength}}</p>
-        <span>Dexterity</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.dexterity}}</p>
-        <span>Constitution</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.constitution}}</p>
-        <span>Intelligence</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.intelligence}}</p>
-        <span>Wisdom</span><p style="padding: 10px; border: 2px solid red;width: fit-content;">{{character.wisdom}}</p>
-        <span>Charisma</span><p style="padding: 10px; border: 2px solid red; width: fit-content;">{{character.charisma}}</p>
+        <b-navbar toggleable="lg" type="dark" variant="danger">
+            <b-navbar-brand href="/dev/home" class="mx-3">D&D Group Finder</b-navbar-brand>
+
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+            <b-collapse id="nav-collapse" is-nav>
+                <b-navbar-nav>
+                    <b-nav-item href="/dev/search">Groups</b-nav-item>
+                    <b-nav-item href="#">Rules</b-nav-item>
+                </b-navbar-nav>
+
+            <!-- Right aligned nav items -->
+                <b-navbar-nav class="ml-auto">
+                    <b-nav-item-dropdown right>
+                        <!-- Using 'button-content' slot -->
+                        <template #button-content>
+                            <em>User</em>
+                        </template>
+                            <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
+                            <b-dropdown-item href="#">Logout</b-dropdown-item>
+                    </b-nav-item-dropdown>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
+    <div class="text-center" v-if="loading">
+      <b-spinner></b-spinner>
+    </div>
+    <!-- <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
+    <b-button v-if="!edit" size="sm" variant="outline-danger" @click="edit=true" class="m-2">Edit</b-button>
+    <b-card v-if="!edit" text-variant="danger" :title="character.char_name" :sub-title="character.user_name">
+      <b-card-text>
+        <b-link :href="'/dev/group-page?groupId=' + character.group_id">{{character.group_name}}</b-link>
+      </b-card-text>
+      <b-card-text>
+          Stats
+          <b-list-group-item>Race: {{character.race}}</b-list-group-item>
+          <b-list-group-item>Class: {{character.class}}</b-list-group-item>
+          <b-list-group-item>Strength: {{character.strength}}</b-list-group-item>
+          <b-list-group-item>Dexterity: {{character.dexterity}}</b-list-group-item>
+          <b-list-group-item>Constitution: {{character.constitution}}</b-list-group-item>
+          <b-list-group-item>Intelligence: {{character.intelligence}}</b-list-group-item>
+          <b-list-group-item>Wisdom: {{character.wisdom}}</b-list-group-item>
+          <b-list-group-item>Charisma: {{character.charisma}}</b-list-group-item>
+        </b-card-text>
+    </b-card> -->
+    <b-form class="m-3">
+      <b-form-group
+        id="input-group-1"
+        label="Character Name:"
+        label-for="input-1"
+      >
+        <b-form-input
+          id="input-1"
+          v-model="form.char_name"
+          placeholder=""
+          required
+        ></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-2" label="Class:" label-for="input-2">
+        <b-form-select
+          id="input-2"
+          v-model="form.class"
+          :options="charClass"
+          required
+        ></b-form-select>
+      </b-form-group>
+
+      <b-form-group id="input-group-3" label="Race:" label-for="input-3">
+        <b-form-select
+          id="input-3"
+          v-model="form.race"
+          :options="race"
+          required
+        ></b-form-select>
+      </b-form-group>
+
+    <b-form-group
+        id="input-group-4"
+        label="Strength:"
+        label-for="input-4"
+      >
+        <b-form-input
+          id="input-4"
+          v-model="form.strength"
+          placeholder="Select Strength"
+          required
+          type="range"
+          min="0"
+          max="20"
+        ></b-form-input><span>{{ form.strength }}</span>
+      </b-form-group>
+    <b-form-group
+        id="input-group-5"
+        label="Dexterity:"
+        label-for="input-5"
+      >
+        <b-form-input
+          id="input-4"
+          v-model="form.dexterity"
+          placeholder="Select Dexterity"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.dexterity }}</span>
+      </b-form-group>
+    <b-form-group
+        id="input-group-6"
+        label="Constitution:"
+        label-for="input-6"
+      >
+        <b-form-input
+          id="input-6"
+          v-model="form.constitution"
+          placeholder="Select Constitution"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.constitution }}</span>
+      </b-form-group>
+    <b-form-group
+        id="input-group-7"
+        label="Intelligence:"
+        label-for="input-7"
+      >
+        <b-form-input
+          id="input-7"
+          v-model="form.intelligence"
+          placeholder="Select Intelligence"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.intelligence }}</span>
+      </b-form-group>
+      <b-form-group
+        id="input-group-8"
+        label="Wisdom:"
+        label-for="input-8"
+      >
+        <b-form-input
+          id="input-8"
+          v-model="form.wisdom"
+          placeholder="Select Wisdom"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.wisdom }}</span>
+      </b-form-group>
+    <b-form-group
+        id="input-group-9"
+        label="Charisma:"
+        label-for="input-9"
+      >
+        <b-form-input
+          id="input-9"
+          v-model="form.charisma"
+          placeholder="Select Charisma"
+          required
+          type="range"
+          min="0"
+          max="20"
+          ></b-form-input><span>{{ form.charisma }}</span>
+      </b-form-group>
+      <!-- <b-card class="mt-3" header="Form Data Result">
+        <pre class="m-0">{{ form }}</pre>
+      </b-card> -->
+
+      <b-button @click="updateChar" variant="danger">Update</b-button>
+    </b-form>
     </div>
 </body>
 </html>
@@ -35,19 +196,45 @@
             return {
                 charId: location.href.split('?')[1].split('&')[0].split('=')[1],
                 character: '',
+                loading: false,
+                form : {
+                    charName: '',
+                    race: null,
+                    charClass: null,
+                    strength: '',
+                    dexterity: '',
+                    constitution: '',
+                    intelligence: '',
+                    wisdom: '',
+                    charisma: '',
+                    userId: 1,
+                },
+                race: [{ text: 'Select Race', value: null }, 'Orc', 'Elf', 'Human', 'Breton'],
+                charClass: [{ text: 'Select Class', value: null }, 'Mage', 'Warrior', 'Rogue', 'Monk'],
+                edit: false
             }
         },
         mounted: function() {
             this.getChar();
+            this.loading = true;
         },
         methods: {
             getChar() {
                 axios.get(`/dev/character/${this.charId}`)
-                .then(response => (this.character = response.data[0], console.log(response.data)),
+                .then(response => (this.character = response.data[0], this.form = response.data[0], this.loading = false),
                 (error) => {
                     console.error(error);
                 }); 
             },
+            updateChar() {
+                console.log(this.form)
+                this.form.charId = parseInt(this.charId);
+                axios.post(`/dev/updateChar`, this.form)
+                .then(window.location = '/dev/user-page?userId=1', this.edit = false,
+                (error) => {
+                    console.error(error);
+                })
+            }
         }
     })
 </script>
