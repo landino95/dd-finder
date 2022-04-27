@@ -73,14 +73,16 @@ app.post('/auth', api.authorize);
 app.get('/groups', api.getAllGroups);
 app.get('/groups/:id', api.getGroup);
 app.post('/joinGroup', api.joinGroup);
-app.get('/groupCharacters/:id', api.getGroupChars);
-app.get('/groups/posts/:id', api.getGroupPosts);
+// app.get('/groupCharacters/:id', api.getGroupChars);
+// app.get('/groups/posts/:id', api.getGroupPosts);
 app.post('/createGroup', api.createGroup);
 app.post('/updateGroup', api.updateGroup);
+app.delete('/group/:id', api.deleteGroup);
 
 app.post('/createChar', api.createChar);
 app.post('/updateChar', api.updateChar);
 app.get('/character/:id', api.getChar);
+app.delete('/character/:id', api.deleteChar);
 
 app.get('/post/:id', api.getPost);
 app.post('/createPost', api.createPost);

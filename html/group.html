@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -40,6 +41,7 @@
     </div>
     <div>
       <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
+      <b-button v-if="edit" @click="deleteGroup" size="sm" variant="danger" class="m-2">Delete</b-button>
       <b-button v-if="!edit && !loading" size="sm" variant="outline-danger" @click="edit=true" class="m-2" style="align-content: flex-end;">Edit</b-button>
       <b-card text-variant="danger" :title="group.group_name" :sub-title="group.description" v-if="!edit">
         <div class="m-3">
@@ -48,7 +50,7 @@
             <b-button @click="selected = false">Cancel</b-button>
             <label for="select">Choose a character:</label>
             <select v-model="select" id="select" @change="joinGroup($event)">
-                <option v-for="(character, index) in group.characters" :value="character.char_id" >{{character.char_name}}</option>
+                <option v-for="(character, index) in group.user" :value="character.char_id" >{{character.char_name}}</option>
             </select>
           </div>
         </div>
@@ -92,20 +94,21 @@
               <b-button @click="makePost = false">Cancel</b-button>
               <b-button @click="createComment(group.group_id, 0)" variant="danger">Submit</b-button></div>
           </b-container>
-          <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="comment.title" :sub-title="comment.text" v-for="(comment, index) in group.comments" bg-variant="dark" class="m-3">
+          <b-card v-if="!edit && comment.parent_id == 0" border-variant="danger" text-variant="danger" :title="comment.title" :sub-title="comment.text" v-for="(comment, index) in group.comments" bg-variant="dark" class="m-3">
             <b-card-text>
-              <b-button v-if="!makeComment" @click="makeComment = true" variant="outline-danger" class="mt-2">
-                Comment 
+              {{comment.likes}} likes
+              <template>
+              <b-button @click="addLike(comment.likes, comment.comment_id)" variant="outline-danger" class="mt-2">
+                <b-icon icon="hand-thumbs-up"></b-icon>
+              </b-button></template>
+              <b-button  @click="makeComment = !makeComment" variant="outline-danger" class="mt-2">
+                <b-icon icon="chat-right-text"></b-icon>
               </b-button>
-              <b-button @click="getComments(post.comment_id)" variant="outline-danger" class="mt-2">
-                Show Comments 
-              </b-button>
-              <b-button variant="outline-danger" class="mt-2">
-                Like
-              </b-button>
-              <b-list-group v-if="group.comments.length">
-                <b-list-group-item v-if="comment.comm_id" v-for="comment in group.comments" class="mt-2">{{comment.text}}</b-list-group-item>
-              </b-list-group> 
+              <!-- <b-list-group v-if="group.comments.length">
+                <b-list-group-item v-if="" v-for="comment in group.comments" class="mt-2">{{comment.text}}</b-list-group-item>
+              </b-list-group>  -->
+              <b-card class="m-3" :title="subComment.text" :sub-title="subComment.user_name" v-if="subComment.parent_id != 0 && subComment.parent_id == comment.comment_id && makeComment" v-for="(subComment, index) in group.comments">
+              </b-card>
               <p style="color: black;" v-if="!group.comments.length">No Posts Yet</p>
             </b-card-text>
             <b-container fluid v-if="makeComment" class="mt-2">
@@ -114,7 +117,8 @@
                   <b-form-textarea
                     id="textarea"
                     placeholder="Enter comment..."
-                    v-model="commentText"
+                    v-model="text"
+                    required
                   ></b-form-textarea>
                 </b-col>
               </b-row>
@@ -257,14 +261,17 @@
                 }
                 window.location.reload();
             },
-            createComment(groupId, commId) {
+            createComment(groupId, parentId) {
               console.log(this.text)
-              console.log(groupId, commId)
-              axios.post(`/dev/comments`, {title: this.title, text: this.text, userId: 1, groupId: groupId, commId: commId, parentId: 0, likes: 0})
+              console.log(groupId, parentId)
+              if(this.text) {
+
+                axios.post(`/dev/comments`, {title: this.title, text: this.text, userId: 1, groupId: groupId, parentId: parentId, likes: 0})
                 .then(response => this.newComment = '', window.location.reload(), (console.log(response)),
                 (error) => {
-                    console.log(error);
+                  console.log(error);
                 });
+              } 
             },
             updateGroup() {
                 this.form.groupId = parseInt(this.groupId);
@@ -277,10 +284,16 @@
             addLike(likes, id){
                 console.log(likes)
                 axios.post(`/dev/likes`, {likes: likes + 1, id: id})
-                .then(response => (console.log(response), window.location.reload()),
+                .then(response => (console.log(response)),
                 (error) => {
                     console.log(error);
                 });
+                this.getGroup();
+            },
+            deleteGroup() {
+              axios.delete(`/dev/group/${this.groupId}`).then(window.location = '/dev/search'),(error) => {
+                console.error(error);
+              }
             }
         }
     })

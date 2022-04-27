@@ -55,12 +55,14 @@ const getUserGroups = async function(req, res) {
 }
 const getChar = async function (req, res) {
     const id = req.params.id;
-    const sql = `SELECT characters.char_name, characters.race, characters.class, characters.strength, characters.dexterity, characters.constitution, characters.intelligence, characters.wisdom, characters.charisma, player_groups.group_name, player_groups.group_id, users.user_id, users.user_name
-                FROM characters
-                INNER JOIN player_groups ON player_groups.group_id=characters.group_id
-                INNER JOIN users ON users.user_id=characters.user_id where characters.char_id=${id}`;
+    // const sql = `SELECT characters.char_name, characters.race, characters.class, characters.strength, characters.dexterity, characters.constitution, characters.intelligence, characters.wisdom, characters.charisma, player_groups.group_name, player_groups.group_id, users.user_id, users.user_name
+    //             FROM characters
+    //             INNER JOIN player_groups ON player_groups.group_id=characters.group_id
+    //             INNER JOIN users ON users.user_id=characters.user_id where characters.char_id=${id}`;
+    const sql = `SELECT * FROM characters WHERE char_id = ${id};`;
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         console.log(result)
         return res.send(result);
     } catch (error) {
@@ -78,6 +80,7 @@ const getGroup = async function (req, res) {
                 from comments
                 inner join users on users.user_id = comments.user_id 
                 inner join player_groups on player_groups.group_id = comments.group_id where comments.group_id = ${groupId} `;
+    // const commentsSql = 'SELECT * FROM comments;';
     try {
         const groups = await dbQuery.dbQuery(groupSql);
         const characters = await dbQuery.dbQuery(charSql);
@@ -166,8 +169,10 @@ inner join users on users.user_id = comments.user_id where posts.annc_id=${id};`
 const writeComments = async function(req, res) {
     const data = req.body;
     const sql = `insert into comments (title, text, user_id, group_id, parent_id, likes) values ("${data.title}","${data.text}", ${data.userId}, ${data.groupId}, ${data.parentId}, ${data.likes});`;
+    console.log(sql)
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         return res.send(result);
     } catch (error) {
        console.error(error);
@@ -178,6 +183,7 @@ const likes = async function(req, res) {
     const sql = `update comments set likes = ${data.likes} where comment_id = ${data.id};`;
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         res.send(result);
     } catch (error) {
        console.error(error);
@@ -190,6 +196,7 @@ const joinGroup = async function(req, res) {
     const sql = `UPDATE characters set group_id = ${groupId} where char_id = ${charId}`;
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         return res.send(result);
     } catch (error) {
         console.error(error);
@@ -215,6 +222,7 @@ const createGroup = async function(req, res) {
     const sql = `INSERT INTO player_groups (description, group_name, genre, level, dm, play_type, style, created_on) values ("${data.description}", "${data.groupName}", "${data.genre}", "${data.level}", ${data.dm}, "${data.playStyle}", "${data.playType}", "${data.createdOn}");`
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         return res.send(result)
     } catch (error) {
         console.error(error);        
@@ -223,13 +231,15 @@ const createGroup = async function(req, res) {
 
 const updateGroup = async function(req, res) {
     const data = req.body;
+    console.log(data)
     const sql = `UPDATE player_groups
                 SET description="${data.description}", group_name="${data.group_name}",
                 genre="${data.genre}", level="${data.level}", dm="${data.dm}",
-                play_type="${data.playType}", style="${data.playStyle}"
+                play_type="${data.play_type}", style="${data.play_style}"
                 WHERE group_id = ${data.groupId};`
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         console.log(result)
         return res.send(result)
     } catch (error) {
@@ -259,6 +269,32 @@ const updateChar = async function(req, res) {
         return res.send(result);
     } catch (error) {
        console.error(error);
+    }
+}
+
+const deleteGroup = async function(req, res) {
+    const id = req.params.id;
+    const deleteGroupSql = `DELETE FROM player_groups WHERE group_id = ${id};`;
+    const deleteComments = `DELETE FROM comments WHERE group_id = ${id};`;
+    try {
+        const group = await dbQuery.dbQuery(deleteGroupSql);
+        const comments = await dbQuery.dbQuery(deleteComments);
+        end();
+        return res.send(group)
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+const deleteChar = async function(req, res) {
+    const id = req.params.id;
+    const deleteChar = `DELETE FROM characters WHERE char_id = ${id};`;
+    try {
+        const char = await dbQuery.dbQuery(deleteChar);
+        end();
+        return res.send(char)
+    } catch (error) {
+        console.error(error);
     }
 }
 
@@ -309,5 +345,7 @@ module.exports = {
    authorize,
    joinGroup,
    updateChar,
-   updateGroup
+   updateGroup,
+   deleteGroup,
+   deleteChar
 }

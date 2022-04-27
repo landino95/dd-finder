@@ -40,24 +40,8 @@
     <div class="text-center" v-if="loading">
       <b-spinner></b-spinner>
     </div>
-    <!-- <b-button v-if="edit" @click="edit=false" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
-    <b-button v-if="!edit" size="sm" variant="outline-danger" @click="edit=true" class="m-2">Edit</b-button>
-    <b-card v-if="!edit" text-variant="danger" :title="character.char_name" :sub-title="character.user_name">
-      <b-card-text>
-        <b-link :href="'/dev/group-page?groupId=' + character.group_id">{{character.group_name}}</b-link>
-      </b-card-text>
-      <b-card-text>
-          Stats
-          <b-list-group-item>Race: {{character.race}}</b-list-group-item>
-          <b-list-group-item>Class: {{character.class}}</b-list-group-item>
-          <b-list-group-item>Strength: {{character.strength}}</b-list-group-item>
-          <b-list-group-item>Dexterity: {{character.dexterity}}</b-list-group-item>
-          <b-list-group-item>Constitution: {{character.constitution}}</b-list-group-item>
-          <b-list-group-item>Intelligence: {{character.intelligence}}</b-list-group-item>
-          <b-list-group-item>Wisdom: {{character.wisdom}}</b-list-group-item>
-          <b-list-group-item>Charisma: {{character.charisma}}</b-list-group-item>
-        </b-card-text>
-    </b-card> -->
+      <b-button :href="/dev/user-page?userId=1" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
+      <b-button @click="deleteChar" size="sm" variant="danger" class="m-2">Delete</b-button>
     <b-form class="m-3">
       <b-form-group
         id="input-group-1"
@@ -234,6 +218,11 @@
                 (error) => {
                     console.error(error);
                 })
+            },
+            deleteChar() {
+              axios.delete(`/dev/character/${this.charId}`).then(window.location = `/dev/user-page?userId=1`),(error) => {
+                console.error(error);
+              }
             }
         }
     })
