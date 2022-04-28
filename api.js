@@ -1,4 +1,5 @@
 const dbQuery = require('./js/db');
+const moment = require('moment');
 function end() {
     dbQuery.end(function(err) {
         if(err) {
@@ -35,6 +36,7 @@ const getUserChars = async function(req, res) {
     const sql = `SELECT * FROM characters WHERE user_id = ${id};`
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         return res.send(result);
     } catch (error) {
         console.error(error);
@@ -76,7 +78,7 @@ const getGroup = async function (req, res) {
     const groupSql = `SELECT * FROM player_groups where group_id = ${groupId};`;
     const charSql = `SELECT * FROM characters WHERE group_id = ${groupId}`;
     const userSql = `SELECT * FROM characters WHERE user_id = ${userId};`;
-    const commentsSql = `select comments.comment_id, comments.title, comments.likes, comments.text, comments.parent_id, comments.group_id, comments.user_id, users.user_name, player_groups.group_id
+    const commentsSql = `select comments.comment_id, comments.title, comments.likes, comments.text, comments.parent_id, comments.group_id, comments.user_id, comments.created_on, users.user_name, player_groups.group_id
                 from comments
                 inner join users on users.user_id = comments.user_id 
                 inner join player_groups on player_groups.group_id = comments.group_id where comments.group_id = ${groupId} `;
@@ -104,6 +106,7 @@ const getGroupChars = async function(req, res) {
     const sql = `SELECT * FROM characters WHERE group_id = ${id}`;
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         console.log(result)
         return res.send(result);
     } catch (error) {
@@ -132,6 +135,7 @@ const getPost = async function(req, res) {
             inner join player_groups on posts.group_id = player_groups.group_id where posts.annc_id=${id};`;
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         return res.send(result);
     } catch (error) {
        console.error(error);
@@ -146,6 +150,7 @@ const createPost = async function(req, res) {
     VALUES ("${text}", "${title}", ${id});`
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         return res.send(result);
     } catch (error) {
         console.error(error);
@@ -160,6 +165,7 @@ inner join posts on posts.annc_id = comments.annc_id
 inner join users on users.user_id = comments.user_id where posts.annc_id=${id};`;
     try {
         const result = await dbQuery.dbQuery(sql);
+        end();
         console.log(result)
         return res.send(result);
     } catch (error) {
@@ -168,7 +174,8 @@ inner join users on users.user_id = comments.user_id where posts.annc_id=${id};`
 }
 const writeComments = async function(req, res) {
     const data = req.body;
-    const sql = `insert into comments (title, text, user_id, group_id, parent_id, likes) values ("${data.title}","${data.text}", ${data.userId}, ${data.groupId}, ${data.parentId}, ${data.likes});`;
+    const createdOn = moment().format('MMMM Do YYYY, h:mm')
+    const sql = `insert into comments (title, text, user_id, group_id, parent_id, likes, created_on) values ("${data.title}","${data.text}", ${data.userId}, ${data.groupId}, ${data.parentId}, ${data.likes}, "${createdOn}");`;
     console.log(sql)
     try {
         const result = await dbQuery.dbQuery(sql);
@@ -219,7 +226,8 @@ const getAllGroups = async function(req, res) {
 const createGroup = async function(req, res) {
     console.log(req.body)
     const data = req.body;
-    const sql = `INSERT INTO player_groups (description, group_name, genre, level, dm, play_type, style, created_on) values ("${data.description}", "${data.groupName}", "${data.genre}", "${data.level}", ${data.dm}, "${data.playStyle}", "${data.playType}", "${data.createdOn}");`
+    const createdOn = moment().format('MMMM Do YYYY, h:mm')
+    const sql = `INSERT INTO player_groups (description, group_name, genre, level, dm, play_type, style, created_on) values ("${data.description}", "${data.groupName}", "${data.genre}", "${data.level}", ${data.dm}, "${data.playStyle}", "${data.playType}", "${createdOn}");`
     try {
         const result = await dbQuery.dbQuery(sql);
         end();

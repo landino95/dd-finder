@@ -21,7 +21,7 @@
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
                     <b-nav-item href="/dev/search">Groups</b-nav-item>
-                    <b-nav-item href="#">Rules</b-nav-item>
+                    <b-nav-item target="_blank" rel="noopener noreferrer" href="https://dnd.wizards.com/what-is-dnd/basics-play">Rules</b-nav-item>
                 </b-navbar-nav>
 
             <!-- Right aligned nav items -->
@@ -40,7 +40,7 @@
     <div class="text-center" v-if="loading">
       <b-spinner></b-spinner>
     </div>
-      <b-button :href="/dev/user-page?userId=1" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
+      <b-button href="/dev/user-page?userId=1" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
       <b-button @click="deleteChar" size="sm" variant="danger" class="m-2">Delete</b-button>
     <b-form class="m-3">
       <b-form-group

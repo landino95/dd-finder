@@ -22,7 +22,7 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item href="/dev/search">Groups</b-nav-item>
-          <b-nav-item href="#">Rules</b-nav-item>
+          <b-nav-item target="_blank" rel="noopener noreferrer" href="https://dnd.wizards.com/what-is-dnd/basics-play">Rules</b-nav-item>
         </b-navbar-nav>
         
           <b-navbar-nav class="ml-auto">
@@ -44,6 +44,7 @@
       <b-button v-if="edit" @click="deleteGroup" size="sm" variant="danger" class="m-2">Delete</b-button>
       <b-button v-if="!edit && !loading" size="sm" variant="outline-danger" @click="edit=true" class="m-2" style="align-content: flex-end;">Edit</b-button>
       <b-card text-variant="danger" :title="group.group_name" :sub-title="group.description" v-if="!edit">
+        <p style="color: black; font-size: 8px;">Created On:{{group.created_on}}</p>
         <div class="m-3">
           <b-button v-if="!loading" @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
           <div v-if="selected" class="my-2">
@@ -54,7 +55,10 @@
             </select>
           </div>
         </div>
-        <h4 v-if="!loading" class="mx-3">Characters</h4>
+        <div class="mx-3">
+          <h4 v-if="!loading">Characters</h4>
+          <p style="color: black;" v-if="!group.characters.length">No Characters Yet</p>
+        </div>
         <b-card-group columns>
           <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in group.characters" bg-variant="dark" style="display: inline-block;" class="m-3">
             <b-card-text>
@@ -69,7 +73,10 @@
             </b-card-text>
           </b-card>
         </b-card-group>
-        <h4 v-if="!loading" class="mx-3">Posts</h4>
+        <div class="mx-3">
+          <h4 v-if="!loading">Posts</h4>
+          <p style="color: black;" v-if="!group.comments.length">No Posts Yet</p>
+        </div>
         <b-card-group deck>
           <b-button v-if="!makePost && !loading" @click="makePost = true" variant="danger" class="m-3">
               Add Post 
@@ -95,6 +102,7 @@
               <b-button @click="createComment(group.group_id, 0)" variant="danger">Submit</b-button></div>
           </b-container>
           <b-card v-if="!edit && comment.parent_id == 0" border-variant="danger" text-variant="danger" :title="comment.title" :sub-title="comment.text" v-for="(comment, index) in group.comments" bg-variant="dark" class="m-3">
+            <p style="color: whitesmoke; font-size: 8px;">{{comment.created_on}}</p>
             <b-card-text>
               {{comment.likes}} likes
               <template>
@@ -108,25 +116,30 @@
                 <b-list-group-item v-if="" v-for="comment in group.comments" class="mt-2">{{comment.text}}</b-list-group-item>
               </b-list-group>  -->
               <b-card class="m-3" :title="subComment.text" :sub-title="subComment.user_name" v-if="subComment.parent_id != 0 && subComment.parent_id == comment.comment_id && makeComment" v-for="(subComment, index) in group.comments">
+                <p style="color: black; font-size: 8px;">{{comment.created_on}}</p>
+                <template>
+                  {{subComment.likes}} likes
+              <b-button @click="addLike(subComment.likes, subComment.comment_id)" variant="outline-danger" class="mt-2">
+                <b-icon icon="hand-thumbs-up"></b-icon>
+              </b-button></template>
               </b-card>
-              <p style="color: black;" v-if="!group.comments.length">No Posts Yet</p>
             </b-card-text>
             <b-container fluid v-if="makeComment" class="mt-2">
               <b-row class="mt-2">
                 <b-col sm="10">
                   <b-form-textarea
-                    id="textarea"
-                    placeholder="Enter comment..."
-                    v-model="text"
-                    required
+                  id="textarea"
+                  placeholder="Enter comment..."
+                  v-model="text"
+                  required
                   ></b-form-textarea>
                 </b-col>
               </b-row>
               <div class="mt-2">
-              <b-button @click="makeComment = false">Cancel</b-button>
-              <b-button @click="createComment(comment.group_id, comment.comment_id)" variant="danger">Submit</b-button></div>
-            </b-container>
-          </b-card>
+                <b-button @click="makeComment = false">Cancel</b-button>
+                <b-button @click="createComment(comment.group_id, comment.comment_id)" variant="danger">Submit</b-button></div>
+              </b-container>
+            </b-card>
         </b-card-group>
       </b-card>
     </div>
@@ -226,14 +239,14 @@
                 genre: null,
                 level: null,
                 dm: 1,
-                playType: null,
-                playStyle: null,
+                play_type: null,
+                style: null,
                 createdOn: null
             },
             genre: [{ text: 'Select Genre', value: null }, 'Fantasy', 'Historical', 'Sci-Fi'],
             level: [{ text: 'Select Level', value: null }, 'Beginner', 'Intermediate', 'Expert'],
             playType: [{ text: 'Select Play Type', value: null }, 'Online', 'Face-to-Face', 'Hybrid'],
-            playStyle: [{ text: 'Select Play Style', value: null }, 'Normal', 'Funny'],
+            playStyle: [{ text: 'Select Play Style', value: null }, 'Serious', 'Funny', 'Strict'],
             edit: false,
             makeComment: false,
             postId: '',
@@ -265,7 +278,6 @@
               console.log(this.text)
               console.log(groupId, parentId)
               if(this.text) {
-
                 axios.post(`/dev/comments`, {title: this.title, text: this.text, userId: 1, groupId: groupId, parentId: parentId, likes: 0})
                 .then(response => this.newComment = '', window.location.reload(), (console.log(response)),
                 (error) => {

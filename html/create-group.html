@@ -21,7 +21,7 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item href="/dev/search">Groups</b-nav-item>
-          <b-nav-item href="#">Rules</b-nav-item>
+          <b-nav-item target="_blank" rel="noopener noreferrer" href="https://dnd.wizards.com/what-is-dnd/basics-play">Rules</b-nav-item>
         </b-navbar-nav>
         
           <b-navbar-nav class="ml-auto">
@@ -121,7 +121,7 @@
             genre: [{ text: 'Select Genre', value: null }, 'Fantasy', 'Historical', 'Sci-Fi'],
             level: [{ text: 'Select Level', value: null }, 'Beginner', 'Intermediate', 'Expert'],
             playType: [{ text: 'Select Play Type', value: null }, 'Online', 'Face-to-Face', 'Hybrid'],
-            playStyle: [{ text: 'Select Play Style', value: null }, 'Normal', 'Funny'],
+            playStyle: [{ text: 'Select Play Style', value: null }, 'By The Book', 'Funny', 'Strict', 'Improvisational'],
           }
         },
         mounted: function() {
@@ -129,12 +129,10 @@
         methods: {
             createGroup(){
                 console.log(this.form)
-                axios.post(`/dev/createGroup`, this.form)
-                .then(response => console.log(response),
+                axios.post(`/dev/createGroup`, this.form).then(window.location = '/dev/search'),
                 (error) => {
                     console.error(error);
-                });
-            window.location.href = '/dev/search'
+                };
             }
         }
     })

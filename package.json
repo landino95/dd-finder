@@ -13,6 +13,7 @@
     "express": "^4.17.3",
     "express-openid-connect": "^2.7.2",
     "express-session": "^1.17.2",
+    "moment": "^2.29.3",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
     "mysql2-async": "^1.1.2",

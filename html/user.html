@@ -22,7 +22,7 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item href="/dev/search">Groups</b-nav-item>
-          <b-nav-item href="#">Rules</b-nav-item>
+          <b-nav-item target="_blank" rel="noopener noreferrer" href="https://dnd.wizards.com/what-is-dnd/basics-play">Rules</b-nav-item>
         </b-navbar-nav>
         
           <b-navbar-nav class="ml-auto">
@@ -41,7 +41,11 @@
     </div>
     <b-card text-variant="danger" :title="user.user_name" :sub-title="user.email" v-if="!loading">
       <b-card-group columns>
-        <h3>Characters</h3>
+        <div class="mx-3">
+          <h4 v-if="!loading && user.characters.length">Characters</h4>
+          <p style="color: black;" v-if="!user.characters.length">No Characters Yet</p>
+          <b-button variant="outline-danger" href="/dev/create-char">Create Character</b-button>
+        </div>
         <b-card text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in user.characters" bg-variant="dark" style="display: inline-block;" class="m-3">
           <b-card-text>
             <pre v-if="group.char_id == character.char_id" v-for="group in user.groups">Group: <a :href="'/dev/group-page?groupId='+ group.group_id">{{group.group_name}}</a></pre>
