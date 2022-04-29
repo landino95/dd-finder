@@ -57,7 +57,7 @@
         </div>
         <div class="mx-3">
           <h4 v-if="!loading">Characters</h4>
-          <p style="color: black;" v-if="!group.characters.length">No Characters Yet</p>
+          <p style="color: black;" v-if="!group.characters">No Characters Yet</p>
         </div>
         <b-card-group columns>
           <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in group.characters" bg-variant="dark" style="display: inline-block;" class="m-3">
@@ -69,13 +69,13 @@
               <pre>Intelligence: {{character.intelligence}}</pre>
               <pre>Wisdom: {{character.wisdom}}</pre>
               <pre>Charisma: {{character.charisma}}</pre>
-              <p v-if="!group.characters.length" style="color: black;">No Characters In Group</p>
+              <p v-if="!group.characters" style="color: black;">No Characters In Group</p>
             </b-card-text>
           </b-card>
         </b-card-group>
         <div class="mx-3">
           <h4 v-if="!loading">Posts</h4>
-          <p style="color: black;" v-if="!group.comments.length">No Posts Yet</p>
+          <p style="color: black;" v-if="!group.comments">No Posts Yet</p>
         </div>
         <b-card-group deck>
           <b-button v-if="!makePost && !loading" @click="makePost = true" variant="danger" class="m-3">

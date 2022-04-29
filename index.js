@@ -1,8 +1,8 @@
 const express = require('express');
 const api = require('./api');
-const awsServerlessExpressMiddleware = require('aws-serverless-express/middleware');
+// const awsServerlessExpressMiddleware = require('aws-serverless-express/middleware');
 const path = require('path');
-const session = require('express-session');
+// const session = require('express-session');
 
 // const { auth } = require('express-openid-connect');
 // const { requiresAuth } = require('express-openid-connect');
@@ -16,11 +16,11 @@ const session = require('express-session');
 //   issuerBaseURL: 'https://dev-f3w-ohau.us.auth0.com'
 // };
 const app = express();
-app.use(session({
-	secret: 'secret',
-	resave: true,
-	saveUninitialized: true
-}));
+// app.use(session({
+// 	secret: 'secret',
+// 	resave: true,
+// 	saveUninitialized: true
+// }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
@@ -37,7 +37,7 @@ app.use(express.static(path.join(__dirname, 'static')));
 //   res.send(JSON.stringify(req.oidc.user));
 // });
 
-app.use(awsServerlessExpressMiddleware.eventContext());
+// app.use(awsServerlessExpressMiddleware.eventContext());
 app.use(express.json());
 
 app.get('/user-page', (req, res) => {
@@ -84,13 +84,13 @@ app.post('/updateChar', api.updateChar);
 app.get('/character/:id', api.getChar);
 app.delete('/character/:id', api.deleteChar);
 
-app.get('/post/:id', api.getPost);
-app.post('/createPost', api.createPost);
+// app.get('/post/:id', api.getPost);
+// app.post('/createPost', api.createPost);
 app.get('/comments/:id', api.getComments);
 app.post('/likes', api.likes);
 app.post('/comments', api.writeComments);
 
 app.get('/user/:id', api.getUser);
-app.get('/userChars/:id', api.getUserChars);
-app.get('/userGroups/:id', api.getUserGroups);
+// app.get('/userChars/:id', api.getUserChars);
+// app.get('/userGroups/:id', api.getUserGroups);
 module.exports = app;

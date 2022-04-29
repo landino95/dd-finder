@@ -1,7 +1,7 @@
 org: landonmccleary
-app: dd-finder
+app: dd-group-finder
 console: true
-service: dd-finder
+service: dd-group-finder
 configValidationMode: warn
 frameworkVersion: '3'
 
@@ -9,7 +9,7 @@ provider:
   name: aws
   runtime: nodejs14.x
   region: us-east-1
-  stage: dev
+  stage: dev 
 
 custom:
   region: us-east-1
