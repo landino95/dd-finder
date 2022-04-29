@@ -44,7 +44,7 @@
       <b-button v-if="edit" @click="deleteGroup" size="sm" variant="danger" class="m-2">Delete</b-button>
       <b-button v-if="!edit && !loading" size="sm" variant="outline-danger" @click="edit=true" class="m-2" style="align-content: flex-end;">Edit</b-button>
       <b-card text-variant="danger" :title="group.group_name" :sub-title="group.description" v-if="!edit">
-        <p style="color: black; font-size: 8px;">Created On:{{group.created_on}}</p>
+        <p style="color: black; font-size: 8px;" v-if="!loading">Created On:{{group.created_on}}</p>
         <div class="m-3">
           <b-button v-if="!loading" @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
           <div v-if="selected" class="my-2">
@@ -57,7 +57,7 @@
         </div>
         <div class="mx-3">
           <h4 v-if="!loading">Characters</h4>
-          <p style="color: black;" v-if="!group.characters">No Characters Yet</p>
+          <p style="color: black;" v-if="!group.characters && !loading">No Characters Yet</p>
         </div>
         <b-card-group columns>
           <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in group.characters" bg-variant="dark" style="display: inline-block;" class="m-3">
@@ -69,11 +69,11 @@
               <pre>Intelligence: {{character.intelligence}}</pre>
               <pre>Wisdom: {{character.wisdom}}</pre>
               <pre>Charisma: {{character.charisma}}</pre>
-              <p v-if="!group.characters" style="color: black;">No Characters In Group</p>
+              <p v-if="!group.characters && !loading" style="color: black;">No Characters In Group</p>
             </b-card-text>
           </b-card>
         </b-card-group>
-        <div class="mx-3">
+        <div class="mx-3" v-if="!loading">
           <h4 v-if="!loading">Posts</h4>
           <p style="color: black;" v-if="!group.comments">No Posts Yet</p>
         </div>
@@ -300,7 +300,7 @@
                 (error) => {
                     console.log(error);
                 });
-                this.getGroup();
+                window.location.reload();    
             },
             deleteGroup() {
               axios.delete(`/dev/group/${this.groupId}`).then(window.location = '/dev/search'),(error) => {
