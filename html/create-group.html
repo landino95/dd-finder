@@ -35,7 +35,7 @@
           </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-    <b-form class="m-3">
+    <b-form class="m-5" @submit.stop.prevent="createGroup">
       <h2>Create Group</h2>
       <b-form-group
         id="input-group-1"
@@ -46,8 +46,16 @@
           id="input-1"
           v-model="form.groupName"
           placeholder="Enter Group name"
+          :state="charValidation"
+          @submit.stop.prevent
           required
         ></b-form-input>
+        <b-form-invalid-feedback :state="charValidation">
+            Your character must have a name
+        </b-form-invalid-feedback>
+        <b-form-valid-feedback :state="charValidation">
+            Looks Good.
+        </b-form-valid-feedback>
       </b-form-group>
 
       <b-form-group
@@ -58,48 +66,53 @@
         <b-form-input
           id="input-2"
           v-model="form.description"
+          @submit.stop.prevent
           placeholder="Enter Group Description"
           required
         ></b-form-input>
+        <b-form-invalid-feedback :state="classValidation">
+            Your group must have a name
+        </b-form-invalid-feedback>
+        <b-form-valid-feedback :state="classValidation">
+            Looks Good.
+        </b-form-valid-feedback>
       </b-form-group>
 
-      <b-form-group id="input-group-3" label="Genre:" label-for="input-3">
-        <b-form-select
-          id="input-3"
+      <template>
+      <div style="display: inline-block;" class="my-3">
+      <b-form-group label="Genre:" class="m-3">
+        <b-form-radio-group
+          id="radio-group-1"
           v-model="form.genre"
           :options="genre"
-          required
-        ></b-form-select>
+        ></b-form-radio-group>
       </b-form-group>
 
-    <b-form-group id="input-group-4" label="Level:" label-for="input-4">
-        <b-form-select
-          id="input-4"
+      <b-form-group label="Level:" class="m-3">
+        <b-form-radio-group
+          id="radio-group-2"
           v-model="form.level"
           :options="level"
-          required
-        ></b-form-select>
+        ></b-form-radio-group>
       </b-form-group>
 
-        <b-form-group id="input-group-5" label="Play Style:" label-for="input-5">
-        <b-form-select
-          id="input-5"
+      <b-form-group label="Play Style:" class="m-3">
+        <b-form-radio-group
+          id="radio-group-3"
           v-model="form.playStyle"
           :options="playStyle"
-          required
-        ></b-form-select>
+        ></b-form-radio-group>
       </b-form-group>
 
-    <b-form-group id="input-group-6" label="Play Type:" label-for="input-6">
-        <b-form-select
-          id="input-6"
+      <b-form-group label="Play Type:" class="m-3">
+        <b-form-radio-group
+          id="radio-group-4"
           v-model="form.playType"
           :options="playType"
-          required
-        ></b-form-select>
-      </b-form-group>
+        ></b-form-radio-group>
+      </b-form-group></div></template>
 
-      <b-button @click="createGroup" variant="danger" class="mt-2">Submit</b-button>
+      <b-button @click="createGroup" variant="danger" style="display: block;">Submit</b-button>
     </b-form>
    </div>
 </body>
@@ -112,19 +125,32 @@
             form : {
                 groupName: '',
                 description: '',
-                genre: null,
-                level: null,
-                dm: 1,
-                playStyle: null,
-                playType: null,
+                genre: 'Fantasy',
+                level: 'Beginner',
+                playStyle: 'Hybrid',
+                playType: 'By The Book',
+                dm: document.cookie.split('=')[1],
             },
-            genre: [{ text: 'Select Genre', value: null }, 'Fantasy', 'Historical', 'Sci-Fi'],
-            level: [{ text: 'Select Level', value: null }, 'Beginner', 'Intermediate', 'Expert'],
-            playType: [{ text: 'Select Play Type', value: null }, 'Online', 'Face-to-Face', 'Hybrid'],
-            playStyle: [{ text: 'Select Play Style', value: null }, 'By The Book', 'Funny', 'Strict', 'Improvisational'],
+            genre: ['Fantasy', 'Historical', 'Sci-Fi'],
+            level: ['Beginner', 'Intermediate', 'Expert'],
+            playStyle: ['By The Book', 'Comedic', 'Improvisational'],
+            playType: ['Online', 'Face-to-Face', 'Hybrid'],
+            loggedIn: false
           }
         },
         mounted: function() {
+          this.login();
+        },
+        computed: {
+          charValidation() {
+              return this.form.groupName.length > 1;
+          },
+          classValidation() {
+              return this.form.description.length > 1;
+          },
+          raceValidation() {
+              return this.form.race != null;
+          }
         },
         methods: {
             createGroup(){
@@ -133,7 +159,14 @@
                 (error) => {
                     console.error(error);
                 };
-            }
+            },
+            login(){
+                if(document.cookie.split('=')[1])
+                    return this.loggedIn = true;
+                else {
+                    window.location.href = '/dev/login-page';
+                }
+            },
         }
     })
      

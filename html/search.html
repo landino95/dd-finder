@@ -182,7 +182,8 @@
                 sortDirection: 'asc',
                 filter: null,
                 filterOn: [],
-                loading: true
+                loading: true,
+                loggedIn: false
               }
         },
         computed: {
@@ -198,6 +199,7 @@
         mounted: function() {
             this.totalRows = this.items.length;
             this.getGroups();
+            this.login();
         },
         methods: {
             getGroups() {
@@ -215,7 +217,14 @@
                 // Trigger pagination to update the number of buttons/pages due to filtering
                 this.totalRows = filteredItems.length
                 this.currentPage = 1
-            }
+            },
+            login(){
+                if(document.cookie.split('=')[1])
+                    return this.loggedIn = true;
+                else {
+                    window.location.href = '/dev/login-page';
+                }
+            },
         }
     })
 </script>

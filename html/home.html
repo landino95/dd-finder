@@ -64,8 +64,23 @@
         el: "#app",
         data() {
           return {
+              loggedIn: false,
+              user: ''
           }
         },
+        mounted: function() {
+            this.login()
+        },
+        methods: {
+            login(){
+                console.log(document.cookie.split('=')[1])
+                if(document.cookie.split('=')[1])
+                    return this.loggedIn = true;
+                else {
+                    // window.location.href = '/dev/login-page';
+                }
+            },
+        }
     });
 </script>
 

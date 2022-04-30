@@ -55,9 +55,9 @@
             </select>
           </div>
         </div>
-        <div class="mx-3">
-          <h4 v-if="!loading">Characters</h4>
-          <p style="color: black;" v-if="!group.characters && !loading">No Characters Yet</p>
+        <div class="mx-3" v-if="!loading">
+          <h4>Characters</h4>
+          <p style="color: black;" v-if="!group.characters">No Characters Yet</p>
         </div>
         <b-card-group columns>
           <b-card v-if="!edit" border-variant="danger" text-variant="danger" :title="character.char_name" :sub-title="character.class" v-for="(character, index) in group.characters" bg-variant="dark" style="display: inline-block;" class="m-3">
@@ -224,7 +224,8 @@
             group: [],
             groupId: location.href.split('?')[1].split('&')[0].split('=')[1],
             // charId: 7,
-            userId: 1,
+            userId: document.cookie.split('=')[1],
+            loggedIn: false,
             select: null,
             selected: false,
             loading: false,
@@ -257,6 +258,7 @@
         mounted: function() {
           this.getGroup();
           this.loading = true;
+          this.login();
         },
         methods: {
             getGroup() {
@@ -306,7 +308,14 @@
               axios.delete(`/dev/group/${this.groupId}`).then(window.location = '/dev/search'),(error) => {
                 console.error(error);
               }
-            }
+            },
+            login(){
+                if(document.cookie.split('=')[1])
+                    return this.loggedIn = true;
+                else {
+                    window.location.href = '/dev/login-page';
+                }
+            },
         }
     })
 </script>

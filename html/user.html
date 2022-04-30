@@ -72,16 +72,18 @@
         data() {
           return {
             characters: [],
-            userId: location.href.split('?')[1].split('&')[0].split('=')[1],
+            userId: document.cookie.split('=')[1],
             groups: [],
             user: [],
             userInfo: '',
-            loading: false
+            loading: false,
+            loggedIn: false
           }
         },
         mounted: function() {
           this.getUser();
           this.loading = true;
+          this.login();
         },
         methods: {
             getUser() {
@@ -90,6 +92,13 @@
                 (error) => {
                     console.log(error);
                 }); 
+            },
+            login(){
+                if(document.cookie.split('=')[1])
+                    return this.loggedIn = true;
+                else {
+                    window.location.href = '/dev/login-page';
+                }
             },
         }
     })

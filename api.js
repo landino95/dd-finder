@@ -1,5 +1,6 @@
 const dbQuery = require('./js/db');
 const moment = require('moment');
+const passwordHash = require('password-hash');
 function end() {
     dbQuery.end(function(err) {
         if(err) {
@@ -235,45 +236,70 @@ const deleteChar = async function(req, res) {
 const authorize = async function(req, res) {
     let username = req.body.username;
 	let password = req.body.password;
+    let email = req.body.email;
+    console.log(email, password)
+    let options = {
+        maxAge: 1000 * 60 * 5, // would expire after 15 minutes
+    }
     try {
         if (username && password) {
-            const sql = `SELECT * FROM users WHERE user_name = "${username}" AND password = "${password}"`
+            const sql = `SELECT * FROM users WHERE user_name = "${username}";`;
             const result = await dbQuery.dbQuery(sql);
-            console.log(result)
             if (result.length > 0) {
-                // Authenticate the user
-                req.session.loggedin = true;
-                req.session.username = username;
-                // Redirect to home page
-                console.log(req.session)
-                res.redirect('/dev/search');
+                return res.send(result[0]);
             } else {
-                res.send('Incorrect Username and/or Password!');
+                return res.send('Incorrect Username and/or Password!');
             }			
-            res.end();
+        } else if(email && password) {
+            const sql = `SELECT * FROM users WHERE email = "${email}";`;
+            const result = await dbQuery.dbQuery(sql);
+            console.log(result[0].password)
+            console.log(passwordHash.verify(password, result[0].password))
+            if (result.length > 0 && passwordHash.verify(password, result[0].password)) {
+                console.log(result[0])
+                res.cookie('user_id', result[0].user_id, options);
+                return res.send(result[0]);
+            } else {
+                return res.send('Incorrect Username and/or Password!');
+            }
         } else {
-            res.send('Please enter Username and Password!');
-            res.end();
+            return res.send('Please enter Username and Password!');
         }
     } catch (error) {
         console.error(error)
     }
 }
 
+const register = async function(req, res) {
+    const data = req.body;
+    let password = passwordHash.generate(data.email);
+    console.log(password);
+    const sql = `INSERT INTO users (email, user_name, password)
+                    values ("${data.email}", "${data.name}", "${password}");`;
+    try {
+        const result = await dbQuery.dbQuery(sql);
+        end();
+        return res.send(result);
+    } catch (error) {
+        console.error(error);
+    }
+
+}
 module.exports = {
-   getChar,
-   getUser,
-   getGroup,
-   getComments,
-   getAllGroups,
-   writeComments,
-   likes,
-   createGroup,
-   createChar,
-   authorize,
-   joinGroup,
-   updateChar,
-   updateGroup,
-   deleteGroup,
+    authorize,
+    register,
+    getUser,
+    likes,
+    getComments,
+    writeComments,
+    getAllGroups,
+    createGroup,
+    getGroup,
+    updateGroup,
+    deleteGroup,
+    joinGroup,
+    createChar,
+    getChar,
+    updateChar,
    deleteChar
 }

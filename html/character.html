@@ -191,16 +191,18 @@
                     intelligence: '',
                     wisdom: '',
                     charisma: '',
-                    userId: 1,
+                    userId: window.location.href = '/dev/login-page'
                 },
                 race: [{ text: 'Select Race', value: null }, 'Orc', 'Elf', 'Human', 'Breton'],
                 charClass: [{ text: 'Select Class', value: null }, 'Mage', 'Warrior', 'Rogue', 'Monk'],
-                edit: false
+                edit: false,
+                loggedIn: false
             }
         },
         mounted: function() {
             this.getChar();
             this.loading = true;
+            this.login();
         },
         methods: {
             getChar() {
@@ -223,7 +225,14 @@
               axios.delete(`/dev/character/${this.charId}`).then(window.location = `/dev/user-page?userId=1`),(error) => {
                 console.error(error);
               }
-            }
+            },
+            login(){
+                if(document.cookie.split('=')[1])
+                    return this.loggedIn = true;
+                else {
+                    window.location.href = '/dev/login-page';
+                }
+            },
         }
     })
 </script>
