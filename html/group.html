@@ -30,8 +30,8 @@
                 <template #button-content>
                   <em>User</em>
                 </template>
-                  <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
-                  <b-dropdown-item href="#">Logout</b-dropdown-item>
+                  <b-dropdown-item href="/dev/user-page">Profile</b-dropdown-item>
+                  <b-dropdown-item href="/dev/login-page">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
       </b-collapse>
@@ -48,10 +48,11 @@
         <div class="m-3">
           <b-button v-if="!loading" @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
           <div v-if="selected" class="my-2">
+            {{user}}
             <b-button @click="selected = false">Cancel</b-button>
             <label for="select">Choose a character:</label>
             <select v-model="select" id="select" @change="joinGroup($event)">
-                <option v-for="(character, index) in group.user" :value="character.char_id" >{{character.char_name}}</option>
+                <option v-for="(character, index) in user.characters" :value="character.char_id" >{{character.char_name}}</option>
             </select>
           </div>
         </div>
@@ -222,6 +223,7 @@
         data() {
           return {
             group: [],
+            user: '',
             groupId: location.href.split('?')[1].split('&')[0].split('=')[1],
             // charId: 7,
             userId: document.cookie.split('=')[1],
@@ -239,7 +241,7 @@
                 groupName: '',
                 genre: null,
                 level: null,
-                dm: 1,
+                dm: this.userId,
                 play_type: null,
                 style: null,
                 createdOn: null
@@ -259,6 +261,7 @@
           this.getGroup();
           this.loading = true;
           this.login();
+          this.getUser();
         },
         methods: {
             getGroup() {
@@ -266,6 +269,13 @@
                 .then(response => (this.group = response.data, this.form = response.data, this.loading = false),
                 (error) => {
                     console.error(error);
+                }); 
+            },
+            getUser() {
+             axios.get(`/dev/user/${this.userId}`)
+                .then(response => (this.user = response.data, this.loading = false),
+                (error) => {
+                    console.log(error);
                 }); 
             },
             joinGroup(event) {

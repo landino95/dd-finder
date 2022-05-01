@@ -43,6 +43,7 @@ app.get('/login-page', (req, res) => {
 
 app.post('/auth', api.authorize);
 app.post('/register', api.register);
+app.post('/logout', api.logout);
 
 app.get('/groups', api.getAllGroups);
 app.get('/groups/:id', api.getGroup);

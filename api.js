@@ -1,6 +1,7 @@
 const dbQuery = require('./js/db');
 const moment = require('moment');
 const passwordHash = require('password-hash');
+
 function end() {
     dbQuery.end(function(err) {
         if(err) {
@@ -9,6 +10,7 @@ function end() {
         console.info('Connenction Ended')
     })
 }
+
 const getUser = async function (req, res) {
     const id = req.params.id;
 
@@ -49,6 +51,7 @@ const getChar = async function (req, res) {
        console.error(error);
     }
 };
+
 const getGroup = async function (req, res) {
     const groupId = req.params.id;
     const userId = 1;
@@ -108,6 +111,7 @@ const writeComments = async function(req, res) {
        console.error(error);
     }
 }
+
 const likes = async function(req, res) {
     const data = req.body;
     const sql = `update comments set likes = ${data.likes} where comment_id = ${data.id};`;
@@ -120,6 +124,7 @@ const likes = async function(req, res) {
        console.error(error);
     }
 }
+
 const joinGroup = async function(req, res) {
     const charId = req.body.charId;
     const groupId = req.body.groupId;
@@ -134,6 +139,7 @@ const joinGroup = async function(req, res) {
         console.error(error);
     }
 }
+
 const getAllGroups = async function(req, res) {
     const sql = `SELECT player_groups.group_id, player_groups.description, player_groups.group_name, player_groups.genre, player_groups.level, player_groups.play_type, player_groups.style, users.user_name 
                 FROM player_groups
@@ -148,6 +154,7 @@ const getAllGroups = async function(req, res) {
        console.error(error);
     }
 }
+
 const createGroup = async function(req, res) {
     console.log(req.body)
     const data = req.body;
@@ -240,6 +247,7 @@ const authorize = async function(req, res) {
     console.log(email, password)
     let options = {
         maxAge: 1000 * 60 * 5, // would expire after 15 minutes
+        http: true
     }
     try {
         if (username && password) {
@@ -253,7 +261,8 @@ const authorize = async function(req, res) {
         } else if(email && password) {
             const sql = `SELECT * FROM users WHERE email = "${email}";`;
             const result = await dbQuery.dbQuery(sql);
-            console.log(result[0].password)
+            console.log(password, result[0].password)
+            console.log(typeof(password), typeof(result[0].password))
             console.log(passwordHash.verify(password, result[0].password))
             if (result.length > 0 && passwordHash.verify(password, result[0].password)) {
                 console.log(result[0])
@@ -272,7 +281,7 @@ const authorize = async function(req, res) {
 
 const register = async function(req, res) {
     const data = req.body;
-    let password = passwordHash.generate(data.email);
+    let password = passwordHash.generate(data.password);
     console.log(password);
     const sql = `INSERT INTO users (email, user_name, password)
                     values ("${data.email}", "${data.name}", "${password}");`;
@@ -283,9 +292,18 @@ const register = async function(req, res) {
     } catch (error) {
         console.error(error);
     }
+}
 
+const logout = async function(req, res) {
+    try {
+       res.cookie('user_id', null) 
+       return res.send('');
+    } catch (error) {
+        console.error(error);
+    }
 }
 module.exports = {
+    logout,
     authorize,
     register,
     getUser,
@@ -301,5 +319,5 @@ module.exports = {
     createChar,
     getChar,
     updateChar,
-   deleteChar
+    deleteChar
 }

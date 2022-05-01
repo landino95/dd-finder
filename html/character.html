@@ -31,8 +31,8 @@
                         <template #button-content>
                             <em>User</em>
                         </template>
-                            <b-dropdown-item href="/dev/user-page?userId=1">Profile</b-dropdown-item>
-                            <b-dropdown-item href="#">Logout</b-dropdown-item>
+                            <b-dropdown-item href="/dev/user-page">Profile</b-dropdown-item>
+                            <b-dropdown-item href="/dev/login-page">Logout</b-dropdown-item>
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
             </b-collapse>
@@ -40,7 +40,7 @@
     <div class="text-center" v-if="loading">
       <b-spinner></b-spinner>
     </div>
-      <b-button href="/dev/user-page?userId=1" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
+      <b-button href="/dev/user-page" size="sm" variant="outline-danger" class="m-2">Cancel</b-button>
       <b-button @click="deleteChar" size="sm" variant="danger" class="m-2">Delete</b-button>
     <b-form class="m-3">
       <b-form-group
@@ -216,13 +216,13 @@
                 console.log(this.form)
                 this.form.charId = parseInt(this.charId);
                 axios.post(`/dev/updateChar`, this.form)
-                .then(window.location = '/dev/user-page?userId=1', this.edit = false,
+                .then(window.location = '/dev/user-page', this.edit = false,
                 (error) => {
                     console.error(error);
                 })
             },
             deleteChar() {
-              axios.delete(`/dev/character/${this.charId}`).then(window.location = `/dev/user-page?userId=1`),(error) => {
+              axios.delete(`/dev/character/${this.charId}`).then(window.location = `/dev/user-page`),(error) => {
                 console.error(error);
               }
             },
