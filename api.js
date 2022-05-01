@@ -247,7 +247,7 @@ const authorize = async function(req, res) {
     console.log(email, password)
     let options = {
         maxAge: 1000 * 60 * 5, // would expire after 15 minutes
-        http: true
+        httpOnly: true
     }
     try {
         if (username && password) {
