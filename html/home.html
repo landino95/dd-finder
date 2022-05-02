@@ -73,7 +73,6 @@
         },
         methods: {
             login(){
-                console.log(document.cookie.split('=')[1])
                 if(document.cookie.split('=')[1])
                     return this.loggedIn = true;
                 else {

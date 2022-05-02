@@ -48,7 +48,6 @@
         <div class="m-3">
           <b-button v-if="!loading" @click="selected = true" variant="danger" class="my-3">Join Group</b-button>
           <div v-if="selected" class="my-2">
-            {{user}}
             <b-button @click="selected = false">Cancel</b-button>
             <label for="select">Choose a character:</label>
             <select v-model="select" id="select" @change="joinGroup($event)">
@@ -103,7 +102,7 @@
               <b-button @click="createComment(group.group_id, 0)" variant="danger">Submit</b-button></div>
           </b-container>
           <b-card v-if="!edit && comment.parent_id == 0" border-variant="danger" text-variant="danger" :title="comment.title" :sub-title="comment.text" v-for="(comment, index) in group.comments" bg-variant="dark" class="m-3">
-            <p style="color: whitesmoke; font-size: 8px;">{{comment.created_on}}</p>
+            <p style="color: whitesmoke; font-size: 8px;">{{comment.user_name}} - {{comment.created_on}}</p>
             <b-card-text>
               {{comment.likes}} likes
               <template>
@@ -290,7 +289,7 @@
               console.log(this.text)
               console.log(groupId, parentId)
               if(this.text) {
-                axios.post(`/dev/comments`, {title: this.title, text: this.text, userId: 1, groupId: groupId, parentId: parentId, likes: 0})
+                axios.post(`/dev/comments`, {title: this.title, text: this.text, userId: this.userId, groupId: groupId, parentId: parentId, likes: 0})
                 .then(response => this.newComment = '', window.location.reload(), (console.log(response)),
                 (error) => {
                   console.log(error);
@@ -312,7 +311,8 @@
                 (error) => {
                     console.log(error);
                 });
-                window.location.reload();    
+                this.getGroup();
+                // window.location.reload();    
             },
             deleteGroup() {
               axios.delete(`/dev/group/${this.groupId}`).then(window.location = '/dev/search'),(error) => {

@@ -1,6 +1,7 @@
 const dbQuery = require('./js/db');
 const moment = require('moment');
 const passwordHash = require('password-hash');
+var randomstring = require("randomstring");
 
 function end() {
     dbQuery.end(function(err) {
@@ -12,7 +13,10 @@ function end() {
 }
 
 const getUser = async function (req, res) {
-    const id = req.params.id;
+    // const id = req.params.id;
+    const id = await cookieCheck(req, res);
+    if(!id)
+        return res.sendStatus(500);
 
     const userSql = `SELECT * FROM users WHERE user_id = ${id};`
     const charSql = `SELECT * FROM characters WHERE user_id = ${id};`
@@ -32,15 +36,16 @@ const getUser = async function (req, res) {
         return res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 };
 
 const getChar = async function (req, res) {
+    const userId = await cookieCheck(req, res);
+    console.log('user id', userId)
+    if(!userId)
+        return res.sendStatus(500);
     const id = req.params.id;
-    // const sql = `SELECT characters.char_name, characters.race, characters.class, characters.strength, characters.dexterity, characters.constitution, characters.intelligence, characters.wisdom, characters.charisma, player_groups.group_name, player_groups.group_id, users.user_id, users.user_name
-    //             FROM characters
-    //             INNER JOIN player_groups ON player_groups.group_id=characters.group_id
-    //             INNER JOIN users ON users.user_id=characters.user_id where characters.char_id=${id}`;
     const sql = `SELECT * FROM characters WHERE char_id = ${id};`;
     try {
         const result = await dbQuery.dbQuery(sql);
@@ -49,13 +54,15 @@ const getChar = async function (req, res) {
         return res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 };
 
 const getGroup = async function (req, res) {
     const groupId = req.params.id;
-    const userId = 1;
-    const postId =  26;//req.params.id;
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const groupSql = `SELECT * FROM player_groups where group_id = ${groupId};`;
     const charSql = `SELECT * FROM characters WHERE group_id = ${groupId}`;
     const userSql = `SELECT * FROM characters WHERE user_id = ${userId};`;
@@ -78,10 +85,14 @@ const getGroup = async function (req, res) {
         return res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const getComments = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const id = req.params.id;
     const sql = `select comments.comment_id, comments.likes, comments.text, comments.annc_id, comments.group_id, comments.parent_comm, comments.user_id, users.user_name
 from comments
@@ -94,13 +105,17 @@ inner join users on users.user_id = comments.user_id where posts.annc_id=${id};`
         return res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const writeComments = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const data = req.body;
     const createdOn = moment().format('MMMM Do YYYY, h:mm')
-    const sql = `insert into comments (title, text, user_id, group_id, parent_id, likes, created_on) values ("${data.title}","${data.text}", ${data.userId}, ${data.groupId}, ${data.parentId}, ${data.likes}, "${createdOn}");`;
+    const sql = `insert into comments (title, text, user_id, group_id, parent_id, likes, created_on) values ("${data.title}","${data.text}", ${userId}, ${data.groupId}, ${data.parentId}, ${data.likes}, "${createdOn}");`;
     console.info(sql)
     try {
         const result = await dbQuery.dbQuery(sql);
@@ -109,10 +124,14 @@ const writeComments = async function(req, res) {
         return res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const likes = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const data = req.body;
     const sql = `update comments set likes = ${data.likes} where comment_id = ${data.id};`;
     try {
@@ -122,13 +141,16 @@ const likes = async function(req, res) {
         res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const joinGroup = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const charId = req.body.charId;
     const groupId = req.body.groupId;
-    console.log(charId, groupId)
     const sql = `UPDATE characters set group_id = ${groupId} where char_id = ${charId}`;
     try {
         const result = await dbQuery.dbQuery(sql);
@@ -137,10 +159,14 @@ const joinGroup = async function(req, res) {
         return res.send(result);
     } catch (error) {
         console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const getAllGroups = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const sql = `SELECT player_groups.group_id, player_groups.description, player_groups.group_name, player_groups.genre, player_groups.level, player_groups.play_type, player_groups.style, users.user_name 
                 FROM player_groups
                 INNER JOIN users 
@@ -152,54 +178,72 @@ const getAllGroups = async function(req, res) {
         return res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const createGroup = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     console.log(req.body)
     const data = req.body;
     const createdOn = moment().format('MMMM Do YYYY, h:mm')
-    const sql = `INSERT INTO player_groups (description, group_name, genre, level, dm, play_type, style, created_on) values ("${data.description}", "${data.groupName}", "${data.genre}", "${data.level}", ${data.dm}, "${data.playStyle}", "${data.playType}", "${createdOn}");`
+    const sql = `INSERT INTO player_groups (description, group_name, genre, level, dm, play_type, style, created_on) values ("${data.description}", "${data.groupName}", "${data.genre}", "${data.level}", ${userId}, "${data.playStyle}", "${data.playType}", "${createdOn}");`
     try {
         const result = await dbQuery.dbQuery(sql);
         end();
         return res.send(result)
     } catch (error) {
         console.error(error);        
+        return res.sendStatus(500);
     }
 }
 
 const updateGroup = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const data = req.body;
+    // const userId = await cookieCheck(req, res);
     console.log(data)
     const sql = `UPDATE player_groups
                 SET description="${data.description}", group_name="${data.group_name}",
-                genre="${data.genre}", level="${data.level}", dm="${data.dm}",
+                genre="${data.genre}", level="${data.level}", dm="${userId}",
                 play_type="${data.play_type}", style="${data.play_style}"
                 WHERE group_id = ${data.groupId};`
     try {
         const result = await dbQuery.dbQuery(sql);
         end();
-        console.log(result)
+        console.info(result)
         return res.send(result)
     } catch (error) {
         console.error(error);        
+        return res.sendStatus(500);
     }
 }
 
 const createChar = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const data = req.body;
-    const sql = `INSERT INTO characters (user_id, race, class, strength, dexterity, constitution, intelligence, wisdom, charisma, char_name) values ("${data.userId}", "${data.race}", "${data.charClass}", "${data.strength}", "${data.dexterity}", "${data.constitution}", "${data.intelligence}", "${data.wisdom}", "${data.charisma}", "${data.charName}");`
+    // const userId = await cookieCheck(req, res);
+    const sql = `INSERT INTO characters (user_id, race, class, strength, dexterity, constitution, intelligence, wisdom, charisma, char_name) values ("${userId}", "${data.race}", "${data.charClass}", "${data.strength}", "${data.dexterity}", "${data.constitution}", "${data.intelligence}", "${data.wisdom}", "${data.charisma}", "${data.charName}");`
     try {
         const result = await dbQuery.dbQuery(sql);
         end();
         return res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const updateChar = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const data = req.body;
     console.log(data)
     const sql = `UPDATE characters 
@@ -211,10 +255,14 @@ const updateChar = async function(req, res) {
         return res.send(result);
     } catch (error) {
        console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const deleteGroup = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const id = req.params.id;
     const deleteGroupSql = `DELETE FROM player_groups WHERE group_id = ${id};`;
     const deleteComments = `DELETE FROM comments WHERE group_id = ${id};`;
@@ -225,10 +273,14 @@ const deleteGroup = async function(req, res) {
         return res.send(group)
     } catch (error) {
         console.error(error);
+        return res.sendStatus(500);
     }
 }
 
 const deleteChar = async function(req, res) {
+    const userId = await cookieCheck(req, res);
+    if(!userId)
+        return res.sendStatus(500);
     const id = req.params.id;
     const deleteChar = `DELETE FROM characters WHERE char_id = ${id};`;
     try {
@@ -237,6 +289,7 @@ const deleteChar = async function(req, res) {
         return res.send(char)
     } catch (error) {
         console.error(error);
+        return res.sendStatus(500);
     }
 }
 
@@ -244,10 +297,10 @@ const authorize = async function(req, res) {
     let username = req.body.username;
 	let password = req.body.password;
     let email = req.body.email;
-    console.log(email, password)
+    // console.log(email, password)
     let options = {
         maxAge: 1000 * 60 * 5, // would expire after 15 minutes
-        httpOnly: true
+        // httpOnly: true
     }
     try {
         if (username && password) {
@@ -261,18 +314,20 @@ const authorize = async function(req, res) {
         } else if(email && password) {
             const sql = `SELECT * FROM users WHERE email = "${email}";`;
             const result = await dbQuery.dbQuery(sql);
-            console.log(password, result[0].password)
-            console.log(typeof(password), typeof(result[0].password))
-            console.log(passwordHash.verify(password, result[0].password))
             if (result.length > 0 && passwordHash.verify(password, result[0].password)) {
-                console.log(result[0])
-                res.cookie('user_id', result[0].user_id, options);
-                return res.send(result[0]);
+                const rand = randomstring.generate();
+                const newCookie = await dbQuery.dbQuery(`UPDATE users SET cookie="${rand}" WHERE user_id = ${result[0].user_id};`);
+                end();
+                console.log(result)
+                res.cookie('token', rand, options);
+                return res.send('Valid');
             } else {
-                return res.send('Incorrect Username and/or Password!');
+                // return res.send('Incorrect Username and/or Password!');
+                return res.sendStatus(500);
             }
         } else {
-            return res.send('Please enter Username and Password!');
+            // return res.send('Please enter Username and Password!');
+            return res.sendStatus(500);
         }
     } catch (error) {
         console.error(error)
@@ -283,12 +338,29 @@ const register = async function(req, res) {
     const data = req.body;
     let password = passwordHash.generate(data.password);
     console.log(password);
-    const sql = `INSERT INTO users (email, user_name, password)
-                    values ("${data.email}", "${data.name}", "${password}");`;
+    const rand = randomstring.generate();
+    const sql = `INSERT INTO users (email, user_name, password, cookie)
+                    values ("${data.email}", "${data.name}", "${password}", 
+                    "${rand}");`;
     try {
         const result = await dbQuery.dbQuery(sql);
         end();
+        res.cookie('token', rand, options);
         return res.send(result);
+    } catch (error) {
+        console.error(error);
+        return res.sendStatus(500);
+    }
+}
+
+const cookieCheck = async function(req, res) {
+    console.log('token from headers', req.cookies['token'])
+    try {
+        const sql = `SELECT * FROM users WHERE cookie = "${req.cookies['token']}"`;
+        const result = await dbQuery.dbQuery(sql);
+        if(!result)
+            return false;
+        return result[0].user_id;
     } catch (error) {
         console.error(error);
     }
@@ -296,10 +368,11 @@ const register = async function(req, res) {
 
 const logout = async function(req, res) {
     try {
-       res.cookie('user_id', null) 
-       return res.send('');
+       res.clearCookie('token');
+       return res.sendStatus(200);
     } catch (error) {
         console.error(error);
+        return res.sendStatus(500);
     }
 }
 module.exports = {
